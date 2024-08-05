@@ -1,0 +1,76 @@
+@charset "UTF-8";
+
+/*css 에서 font-weight:bold 는 사용을 자제하고, 가급적 수치로 적용해주세요*/
+/*/*Noto Sans KR*/
+/*@font-face {font-family: 'Noto Sans KR_D'; font-style: normal; */
+/*    src: url("../font/NotoSans-DemiLight.woff") format('woff'), url("../font/NotoSans-DemiLight.otf") format('opentype');}*/
+/*@font-face {font-family: 'Noto Sans KR'; font-style: normal; */
+/*    src: url("../font/NotoSans-Regular.woff") format('woff'), url("../font/NotoSans-Regular.woff2") format('woff2'), url("../font/NotoSans-Regular.otf") format('opentype'),url("../font/NotoSans-Regular.eot") format('opentype');}*/
+/*@font-face {font-family: 'Noto Sans KR_M';font-style: normal; */
+/*    src: url("../font/NotoSans-Medium.woff") format('woff'), url("../font/NotoSans-Medium.woff2") format('woff2'), url("../font/NotoSans-Medium.otf") format('opentype'),url("../font/NotoSans-Medium.eot") format('opentype');}*/
+/*@font-face {font-family: 'Noto Sans KR_B';font-style: normal; */
+/*    src:url("../font/NotoSans-Bold.woff") format('woff'), url("../font/NotoSans-Bold.woff2") format('woff2'), url("../font/NotoSans-Bold.otf") format('opentype'),url("../font/NotoSans-Bold.eot") format('opentype');}*/
+
+/*pretendard 폰트  -----  사파리에서 16px이하 오류*/
+@font-face{font-family:'Pretendard_08'; src: url("../font/Pretendard-Black.woff2") format('woff2');}
+@font-face{font-family:'Pretendard_07'; src: url("../font/Pretendard-ExtraBold.woff2") format('woff2');}
+@font-face{font-family:'Pretendard_06'; src: url("../font/Pretendard-Bold.woff2") format('woff2');}
+@font-face{font-family:'Pretendard_05'; src: url("../font/Pretendard-SemiBold.woff") format('woff');}
+@font-face{font-family:'Pretendard_04'; src: url("../font/Pretendard-Medium.woff2") format('woff2');}
+@font-face{font-family:'Pretendard'; src: url(../font/Pretendard-Regular.woff2) format('woff2');}
+@font-face{font-family:'Pretendard_02'; src: url("../font/Pretendard-Light.woff2") format('woff2');}
+@font-face{font-family:'Pretendard_01'; src: url("../font/Pretendard-ExtraLight.woff2") format('woff2');}
+@font-face{font-family:'Pretendard_00'; src: url("../font/Pretendard-Thin.woff") format('woff');}
+
+.fw00{font-family:'Pretendard_00';}
+.fw01{font-family:'Pretendard_01';}
+.fw02{font-family:'Pretendard_00';}
+.fw04{font-family:'Pretendard_04';}
+.fw05{font-family:'Pretendard_05';}
+.fw06{font-family:'Pretendard_06';}
+.fw07{font-family:'Pretendard_07';}
+.fw08{font-family:'Pretendard_08';}
+
+.fz_2xs{font-size:0.750rem;}
+.fz_xs{font-size:0.875rem;}
+.fz_sm{font-size:1rem;}
+.fz_md{font-size:1.125rem;}
+.fz_lg{font-size:1.313rem;}
+.fz_xl{font-size:1.500rem;}
+.fz_2xl{font-size:2.250rem;}
+.fz_3xl{font-size:3.000rem;}
+.fz_4xl{font-size:3.750rem;}
+.fz_5xl{font-size:4.500rem;}
+
+
+/*꾸밈폰트*/
+@font-face {
+	font-family: 'locus_sangsang';
+	src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/locus_sangsang.woff') format('woff');
+	src: url("../font/locus_sangsang.woff") format('woff');
+	font-weight: normal;
+	font-style: normal;
+}
+
+
+/*Material Icons*/
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  src: url(../font/MaterialIcons-Regular.eot); /* For IE6-8 */
+  src: local('Material Icons'),
+       local('MaterialIcons-Regular'),
+       url(../font/MaterialIcons-Regular.woff2) format('woff2'),
+       url(../font/MaterialIcons-Regular.woff) format('woff'),
+       url(../font/MaterialIcons-Regular.ttf) format('truetype');
+}
+.micon{font-family: 'Material Icons';  font-weight: normal;  font-style: normal;  font-size: 24px;  /* Preferred icon size */ width:24px;   display: inline-block;  line-height: 1;  text-transform: none;  letter-spacing: normal;  word-wrap: normal;  white-space: nowrap;  direction: ltr;  /* Support for all WebKit browsers. */  -webkit-font-smoothing: antialiased;  /* Support for Safari and Chrome. */  text-rendering: optimizeLegibility;  /* Support for Firefox. */  -moz-osx-font-smoothing: grayscale;  /* Support for IE. */  font-feature-settings: 'liga';}
+.micon.md-18{font-size: 18px; width:18px;}
+.micon.md-24{font-size: 24px; width:24px;}
+.micon.md-36{font-size: 36px; width:36px;}
+.micon.md-48{font-size: 48px; width:48px;}
+.micon.md-dark{color:rgba(0,0,0,0.54);}
+.micon.md-dark.md-inactive{color:rgba(0,0,0,0.26);}
+.micon.md-light{color:#fff;}
+.micon.md-light.md-inactive{color:rgba(0,0,0,0.3);}
