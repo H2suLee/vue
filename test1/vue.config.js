@@ -1,7 +1,9 @@
 const { defineConfig } = require("@vue/cli-service");
 module.exports = defineConfig({
+  lintOnSave: false, // multi-word 에러 피하는
   transpileDependencies: true,
-  outputDir: "D:/TOYCHAT/workspace/toychatuser/src/main/resources/static",
+  outputDir:
+    "D:\\TOYCHAT\\workspace\\TOYCHAT\\toychatuser\\src\\main\\resources\\static",
   devServer: {
     port: 9091,
     proxy: {
