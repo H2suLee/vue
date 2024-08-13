@@ -1,9 +1,89 @@
 <template>
   <div>
+    <!-- 사용자 -->
+    <div v-show="!isAdmin">
+      <div>
+        <Login v-if="!isLogin" />
+        <div v-else>
+          <Header />
+          <LeftMenu />
+        </div>
+      </div>
+    </div>
+    <!-- 관리자 -->
+    <div v-show="isAdmin">
+      <div>
+        <AdminLogin v-if="!isLogin" />
+        <div v-else>
+          <AdminHeader />
+          <AdminLeftMenu />
+        </div>
+      </div>
+    </div>
     <router-view />
   </div>
 </template>
 
+<script>
+import { ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+
+// user
+import Header from "./user/inc/Header.vue";
+import LeftMenu from "./user/inc/LeftMenu.vue";
+import Login from "./user/modules/components/login/LoginPage.vue";
+import Home from "./user/views/Home.vue";
+
+// admin
+import AdminHeader from "./admin/inc/Header.vue";
+import AdminLeftMenu from "./admin/inc/LeftMenu.vue";
+import AdminLogin from "./admin/modules/components/login/LoginPage.vue";
+import AdminHome from "./admin/views/Home.vue";
+
+export default {
+  name: "App",
+  components: {
+    Header,
+    LeftMenu,
+    Login,
+    AdminHeader,
+    AdminLeftMenu,
+    AdminLogin,
+    Home,
+    AdminHome,
+  },
+  setup() {
+    const route = useRoute();
+    const router = useRouter();
+    const isAdmin = ref(false);
+
+    const checkAdminRoute = () => {
+      isAdmin.value = route.path.startsWith("/admin");
+    };
+
+    router.afterEach((to, from) => {
+      checkAdminRoute();
+    });
+
+    return {
+      isAdmin,
+    };
+  },
+  mounted() {
+    this.isAdmin = this.$route.path.startsWith("/admin");
+  },
+  computed: {
+    isLogin() {
+      const isAuthenticated =
+        localStorage.getItem("isAuthenticated") === "true";
+      const isAdminAuthenticated =
+        localStorage.getItem("isAdminAuthenticated") === "true";
+
+      return this.isAdmin ? isAdminAuthenticated : isAuthenticated;
+    },
+  },
+};
+</script>
 <style>
 @import "@/assets/css/lib/jquery.bxslider.css";
 @import "@/assets/css/lib/slick.css";

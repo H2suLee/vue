@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Home from "../views/Home.vue";
+import Home from "../user/views/Home.vue";
+import AdminHome from "../admin/views/Home.vue";
 
 const routes = [
   {
@@ -7,18 +8,29 @@ const routes = [
     name: "Home",
     component: Home,
   },
-  // 다른 라우트들 추가 가능
+  {
+    path: "/chat/list",
+    name: "ChatList",
+    component: () => import("../user/modules/components/chat/ChatList.vue"),
+  },
+  {
+    path: "/admin",
+    name: "AdminHome",
+    component: AdminHome,
+    children: [
+      {
+        path: "/admin/chat/manage",
+        name: "AdminChatManage",
+        component: () =>
+          import("../admin/modules/components/chat/ChatManage.vue"),
+      },
+    ],
+  },
 ];
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
-});
-
-router.beforeEach((to, from, next) => {
-  const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
-  if (to.name !== "Home" && !isAuthenticated) next({ name: "Home" });
-  else next();
 });
 
 export default router;

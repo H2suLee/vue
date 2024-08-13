@@ -12,11 +12,12 @@ export default {
     const fn_kakaoLogout = () => {
       window.Kakao.Auth.logout((res) => {
         if (res) {
-          localStorage.setItem("isAuthenticated", "false");
+          localStorage.setItem("isAdminAuthenticated", false);
           localStorage.setItem("id", "");
           localStorage.setItem("nickname", "");
+          localStorage.setItem("role", "ADM");
         }
-        router.go({ path: "/" });
+        router.go({ path: "/admin" });
       });
     };
 

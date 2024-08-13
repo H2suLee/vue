@@ -25,14 +25,15 @@ export default {
           var nick = res.kakao_account.profile.nickname;
 
           //로그인 여부 저장
-          localStorage.setItem("isAuthenticated", "true");
+          localStorage.setItem("isAuthenticated", true);
           localStorage.setItem("id", id);
-          localStorage.setItem("nickname", nick);
-          this.$router.go("/");
+          localStorage.setItem("nick", nick);
+          localStorage.setItem("role", "USR");
+          this.$router.go("/chat/list");
         },
         fail: (error) => {
           console.log(error);
-          localStorage.setItem("isAuthenticated", "false");
+          localStorage.setItem("isAuthenticated", false);
         },
       });
     },
