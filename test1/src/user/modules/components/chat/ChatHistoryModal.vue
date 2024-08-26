@@ -32,8 +32,8 @@ export default {
   },
   emits: ["update:modalValue"],
   setup(props, { emit }) {
-    const userId = ref(localStorage.getItem("id"));
-    const nick = ref(localStorage.getItem("nick"));
+    const userId = computed(() => props.userId);
+    const nick = computed(() => props.nick);
     const chatroomId = computed(() => props.chatroomId);
     const visible = ref(props.modalValue);
     const modalContent = ref(null);

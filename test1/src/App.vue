@@ -74,11 +74,24 @@ export default {
   },
   computed: {
     isLogin() {
+      // 사용자
       const isAuthenticated =
         localStorage.getItem("isAuthenticated") === "true";
-      const isAdminAuthenticated =
-        localStorage.getItem("isAdminAuthenticated") === "true";
 
+      // 관리자
+      let isAdminAuthenticated;
+      const token = localStorage.getItem("jwt");
+      if (!token) {
+        isAdminAuthenticated = false;
+      }
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+
+        const isExpired = payload.exp && Date.now() / 1000 > payload.exp;
+        isAdminAuthenticated = !isExpired;
+      } catch (err) {
+        isAdminAuthenticated = false;
+      }
       return this.isAdmin ? isAdminAuthenticated : isAuthenticated;
     },
   },

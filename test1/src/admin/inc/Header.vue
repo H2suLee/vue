@@ -1,5 +1,10 @@
 <template>
-  <div><a @click="fn_kakaoLogout">로그아웃</a></div>
+  <div>
+    <a @click="handleLogout">로그아웃</a>
+    <router-link to="/admin/chat/serviceList" class="btn"
+      >실시간 채팅 지원(채팅 지원 페이지)</router-link
+    >
+  </div>
 </template>
 
 <script>
@@ -9,20 +14,15 @@ export default {
   setup() {
     const router = useRouter();
 
-    const fn_kakaoLogout = () => {
-      window.Kakao.Auth.logout((res) => {
-        if (res) {
-          localStorage.setItem("isAdminAuthenticated", false);
-          localStorage.setItem("id", "");
-          localStorage.setItem("nickname", "");
-          localStorage.setItem("role", "ADM");
-        }
-        router.go({ path: "/admin" });
-      });
+    const handleLogout = () => {
+      localStorage.removeItem("jwt");
+      localStorage.removeItem("adminId");
+      localStorage.removeItem("adminNick");
+      router.go("/admin");
     };
 
     return {
-      fn_kakaoLogout,
+      handleLogout,
     };
   },
 };

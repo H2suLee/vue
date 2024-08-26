@@ -18,6 +18,8 @@
     <ChatHistoryModal
       v-model:modalValue="isChatHistoryModalVisible"
       :chatroomId="chatroomId"
+      :userId="userId"
+      :nick="nick"
     />
   </div>
 </template>
@@ -30,16 +32,16 @@ import ChatHistoryModal from "./ChatHistoryModal.vue";
 export default {
   components: { ChatHistoryModal },
   setup() {
+    const userId = ref(localStorage.getItem("id"));
+    const nick = ref(localStorage.getItem("nick"));
     const chatrooms = ref([]);
     const chatroomId = ref("");
     const isChatHistoryModalVisible = ref(false);
-
     // 채팅 리스트 가져오기 함수
     const getMyChatroomList = async () => {
       try {
-        const userId = localStorage.getItem("id");
         const response = await axios.post("/api/chat/chatroomList", {
-          id: userId,
+          id: userId.value,
         });
         chatrooms.value = response.data;
       } catch (error) {
@@ -59,6 +61,8 @@ export default {
     });
 
     return {
+      userId,
+      nick,
       chatrooms,
       chatroomId,
       isChatHistoryModalVisible,

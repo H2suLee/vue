@@ -9,6 +9,7 @@ module.exports = defineConfig({
     proxy: {
       "/api": {
         target: "http://localhost:9090", // 백엔드 서버의 주소로 변경
+        //target: "https://oral-therine-heesu-f4935ad1.koyeb.app", // 백엔드 서버의 주소로 변경
         changeOrigin: true,
         pathRewrite: { "^/api": "" },
       },

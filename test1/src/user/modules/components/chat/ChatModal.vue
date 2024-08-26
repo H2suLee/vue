@@ -9,13 +9,15 @@
     >
       <button class="modal-close" @click="close">×</button>
       <slot></slot>
-      <p>온라인 문의가 가능한 상태입니다.</p>
-      <p>[[[가능한 상담원 아이콘들.... 호버하면 상담원의 닉네임]]]</p>
-      <!-- 말풍선 -->
-      <p>안녕하세요! 어떻게 도와드릴끼요?</p>
+      <!-- 사용자한테만 보이는 안내창 -->
+      <div v-show="role == 'USR'"></div>
+      <!-- /사용자한테만 보이는 안내창 -->
+
+      <!-- 메시지 -->
       <div v-for="(msg, index) in messages" :key="index">
         <p>{{ msg.nick }} : {{ msg.content }}</p>
       </div>
+      <!-- /메시지 -->
       <div>
         <input v-model="message" placeholder="메시지 작성.." />
         <button @click="sendMessage">전송</button>
@@ -27,20 +29,36 @@
 </template>
 
 <script>
-import { ref, watch, onMounted } from "vue";
+import { ref, watch, onMounted, computed } from "vue";
 import axios from "axios";
-
 export default {
   props: {
     modelValue: {
       type: Boolean,
       default: false,
     },
+    userId: {
+      type: String,
+      default: "",
+    },
+    nick: {
+      type: String,
+      default: "",
+    },
+    role: {
+      type: String,
+      default: "",
+    },
+    chatroomId: {
+      type: String,
+      default: "",
+    },
   },
   setup(props, { emit }) {
-    const userId = ref(localStorage.getItem("id"));
-    const nick = ref(localStorage.getItem("nick"));
-    let chatroomId = ref("");
+    const userId = computed(() => props.userId);
+    const nick = computed(() => props.nick);
+    const role = computed(() => props.role);
+    let chatroomId = computed(() => props.chatroomId);
     const visible = ref(props.modelValue);
     const modalContent = ref(null);
     let isDragging = ref(false);
@@ -56,6 +74,7 @@ export default {
     const makeSendBody = (type) => {
       let content =
         type === "ENTER" ? `${nick.value}님이 입장하였습니다.` : message.value;
+      console.log(chatroomId.value + " in the modal");
       const sendBody = {
         chatroomId: chatroomId.value,
         id: userId.value,
@@ -72,18 +91,10 @@ export default {
       message.value = "";
     };
 
-    // 채팅방 개설, 입장
-    const openChatroom = () => {
-      // 채팅방ID
-      axios
-        .post(`/api/chat/create`, {
-          id: userId.value,
-          nick: nick.value,
-        })
-        .then((res) => {
-          chatroomId.value = res.data.chatroomId;
-          sendWebSocket(makeSendBody("ENTER"));
-        });
+    // 채팅방 입장
+    const enterChatroom = () => {
+      console.log("enter");
+      sendWebSocket(makeSendBody("ENTER"));
     };
 
     // 소켓 센드
@@ -98,32 +109,28 @@ export default {
 
     // 소켓 오픈
     const openWebSocket = () => {
-      // 웹소켓 연결 생성
       websocket = new WebSocket("ws://localhost:9090/ws/chat");
 
-      // 웹소켓 연결이 열리면 실행되는 함수
       websocket.onopen = () => {
         console.log("WebSocket connection opened");
+        enterChatroom("ENTER");
       };
 
-      // 서버에서 메시지를 수신했을 때 실행되는 함수
       websocket.onmessage = (event) => {
         let jsondata = JSON.parse(event.data);
-        console.log("Message from server: ", jsondata, typeof event.data);
         let pushMsg = { nick: jsondata.nick, content: jsondata.content };
         messages.value.push(pushMsg);
       };
 
-      // 웹소켓 연결이 닫혔을 때 실행되는 함수
       websocket.onclose = () => {
         console.log("WebSocket connection closed");
       };
 
-      // 웹소켓 오류가 발생했을 때 실행되는 함수
       websocket.onerror = (error) => {
         console.error("WebSocket error: ", error);
       };
     };
+
     // 닫기
     const close = () => {
       chatroomId.value = "";
@@ -159,7 +166,6 @@ export default {
         if (newValue) {
           if (websocket === null || websocket.readyState === WebSocket.CLOSED) {
             openWebSocket();
-            openChatroom();
           }
         }
       }
@@ -169,6 +175,7 @@ export default {
     return {
       userId,
       nick,
+      role,
       chatroomId,
       visible,
       close,

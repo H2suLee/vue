@@ -17,14 +17,21 @@ const routes = [
     path: "/admin",
     name: "AdminHome",
     component: AdminHome,
-    children: [
-      {
-        path: "/admin/chat/manage",
-        name: "AdminChatManage",
-        component: () =>
-          import("../admin/modules/components/chat/ChatManage.vue"),
-      },
-    ],
+  },
+  {
+    path: "/admin/chat/mnglist",
+    name: "AdminChatManage",
+    component: () => import("../admin/modules/components/chat/ChatManage.vue"),
+  },
+  {
+    path: "/admin/chat/serviceList",
+    name: "AdminChatService",
+    component: () => import("../admin/modules/components/chat/ChatService.vue"),
+  },
+  {
+    path: "/admin/chat/empty",
+    name: "AdminEmpty",
+    component: () => import("../admin/modules/components/chat/empty.vue"),
   },
 ];
 
