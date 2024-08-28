@@ -2,13 +2,26 @@
   <div>
     <h1>채팅 이력</h1>
     <table>
-      <!-- 내용, 날짜, 상태 -->
+      <!-- 생성일, 답변자, 내용, 마지막 채팅일시 -->
+      <thead>
+        <tr>
+          <td>roomId</td>
+          <td>생성일</td>
+          <td>답변자</td>
+          <td>채팅</td>
+          <td>마지막 채팅일</td>
+          <td>상태(대기/진행중/완료)</td>
+        </tr>
+      </thead>
       <tbody>
         <tr
           v-for="chat in chatrooms"
           :key="chat.chatroomId"
           @click="openChatHistoryModal(chat.chatroomId)"
         >
+          <td>{{ chat.chatroomId }}</td>
+          <td>{{ chat.credt }}</td>
+          <td>{{ chat.adm.nick }}</td>
           <td>{{ chat.lastContent }}</td>
           <td>{{ chat.lastCredt }}</td>
           <td>{{ chat.status }}</td>
@@ -18,8 +31,6 @@
     <ChatHistoryModal
       v-model:modalValue="isChatHistoryModalVisible"
       :chatroomId="chatroomId"
-      :userId="userId"
-      :nick="nick"
     />
   </div>
 </template>
@@ -43,6 +54,7 @@ export default {
         const response = await axios.post("/api/chat/chatroomList", {
           id: userId.value,
         });
+        console.log("res", response.data);
         chatrooms.value = response.data;
       } catch (error) {
         console.error("Error fetching chat list:", error);

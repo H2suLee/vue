@@ -8,16 +8,26 @@
       @mousemove="drag"
     >
       <button class="modal-close" @click="close">×</button>
-      <div v-for="(msg, index) in messages" :key="index">
-        <p>{{ msg.nick }} : {{ msg.content }}</p>
-      </div>
+      카테고리 :
+      <select v-model="category">
+        <option value="cate1">category1</option>
+        <option value="cate2">category2</option>
+        <option value="cate3">category3</option>
+      </select>
+      메모 :
+      <textarea v-model="memo" rows="4" cols="50"></textarea>
+
+      <!-- Validation Error Message -->
+      <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+
+      <button @click="save">저장</button>
     </div>
   </div>
 </template>
 
 <script>
 import { ref, watch, computed } from "vue";
-import axios from "axios";
+import axios from "@/axios.js";
 
 export default {
   props: {
@@ -32,6 +42,9 @@ export default {
   },
   emits: ["update:modalValue"],
   setup(props, { emit }) {
+    const category = ref("");
+    const memo = ref("");
+    const errorMessage = ref("");
     const chatroomId = computed(() => props.chatroomId);
     const visible = ref(props.modalValue);
     const modalContent = ref(null);
@@ -40,24 +53,52 @@ export default {
     let startY = 0;
     let initialLeft = 0;
     let initialTop = 0;
-    const message = ref("");
-    let messages = ref([]);
 
-    // 대화내용 불러오기
-    const getMyChat = async () => {
+    // 채팅방 관리 정보
+    const getMyChatManageInfo = async () => {
       try {
-        const response = await axios.post("/api/chat/chatList", {
+        const response = await axios.post("/api/admin/chat/chatManageInfo", {
           chatroomId: chatroomId.value,
         });
-        messages.value = response.data;
+        category.value = response.data.category;
+        memo.value = response.data.memo;
       } catch (error) {
         console.error("Error fetching chat list:", error);
       }
     };
+
+    // 저장
+    const save = () => {
+      if (validate()) {
+        if (confirm("저장하시겠습니까?")) {
+          const response = axios.post("api/admin/chat/saveChatManageInfo", {
+            chatroomId: chatroomId.value,
+            category: category.value,
+            memo: memo.value,
+          });
+        }
+      }
+    };
+
+    // 유효성 검사
+    const validate = () => {
+      if (!category.value) {
+        errorMessage.value = "카테고리를 선택해주세요.";
+        return false;
+      }
+      if (!memo.value || !memo.value.trim()) {
+        errorMessage.value = "메모를 입력해주세요.";
+        return false;
+      }
+      errorMessage.value = "";
+      return true;
+    };
+
     // 닫기
     const close = () => {
       chatroomId.value = "";
-      messages.value = [];
+      category.value = "";
+      memo.value = "";
       emit("update:modalValue", false);
     };
 
@@ -91,12 +132,15 @@ export default {
       () => chatroomId.value,
       (newValue) => {
         if (newValue) {
-          getMyChat();
+          getMyChatManageInfo();
         }
       }
     );
 
     return {
+      category,
+      memo,
+      errorMessage,
       chatroomId,
       visible,
       close,
@@ -104,8 +148,7 @@ export default {
       startDrag,
       stopDrag,
       drag,
-      message,
-      messages,
+      save,
     };
   },
 };

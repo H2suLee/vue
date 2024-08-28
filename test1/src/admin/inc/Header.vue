@@ -1,9 +1,8 @@
 <template>
   <div>
+    관리자 헤더
+    <p>관리자 접속중..</p>
     <a @click="handleLogout">로그아웃</a>
-    <router-link to="/admin/chat/serviceList" class="btn"
-      >실시간 채팅 지원(채팅 지원 페이지)</router-link
-    >
   </div>
 </template>
 

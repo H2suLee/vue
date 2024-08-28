@@ -1,20 +1,24 @@
 <template>
   <div>
     <h1>실시간 채팅 지원</h1>
-    <table>
-      <!-- 내용, 날짜, 상태 -->
-      <tbody>
-        <tr
-          v-for="chat in chatrooms"
-          :key="chat.chatroomId"
-          @click="openChatModal(chat._id)"
-        >
-          <td>닉: {{ chat.participants[0].nick }}</td>
-          <td>생성일: {{ chat.credt }}</td>
-          <td>상태: {{ chat.status }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <div v-if="chatrooms.length === 0">실시간 채팅 지원이 없습니다.</div>
+    <div v-else>
+      <table>
+        <!-- 내용, 날짜, 상태 -->
+        <tbody>
+          <tr
+            v-for="chat in chatrooms"
+            :key="chat.chatroomId"
+            @click="openChatModal(chat._id)"
+          >
+            <td>rid: {{ chat._id }}</td>
+            <td>닉: {{ chat.participants[0].nick }}</td>
+            <td>생성일: {{ chat.credt }}</td>
+            <td>상태: {{ chat.status }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     <ChatModal
       v-model:modelValue="isModalVisible"
       :userId="userId"
@@ -56,6 +60,7 @@ export default {
         );
 
         chatrooms.value = response.data;
+        console.log("length: " + chatrooms.value.length);
       } catch (error) {
         console.error("Error fetching chat list:", error);
       }

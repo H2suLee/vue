@@ -14,14 +14,19 @@
       <template #default>
         <h2>대화</h2>
         <p>질문이 있으신가요? 지금 문의하세요!</p>
-        <p>온라인 문의가 가능한 상태입니다.</p>
         <div>
-          <div v-for="(value, index) in activeAdmin" :key="index">
-            {{ value }}
+          <div v-if="!isActivAdmin">
+            <p>가능한 상담원이 없습니다.</p>
+          </div>
+          <div v-else>
+            <p>온라인 문의가 가능한 상태입니다.</p>
+            <div v-for="(value, index) in activeAdmin" :key="index">
+              {{ value }}
+            </div>
+            <!-- 말풍선 -->
+            <p>안녕하세요! 어떻게 도와드릴까요?</p>
           </div>
         </div>
-        <!-- 말풍선 -->
-        <p>안녕하세요! 어떻게 도와드릴까요?</p>
       </template>
     </ChatModal>
   </div>
@@ -45,6 +50,7 @@ export default {
     const chatroomId = ref("");
     let activeAdminChkSocket = null;
     let activeAdmin = ref([]);
+    let isActivAdmin = ref(false);
 
     const fn_kakaoLogout = () => {
       window.Kakao.Auth.logout((res) => {
@@ -58,7 +64,6 @@ export default {
     };
 
     const openChatModal = () => {
-      console.log("fnc openModal");
       // 채팅방 아이디
       axios
         .post(`/api/chat/create`, {
@@ -66,7 +71,6 @@ export default {
           nick: nick.value,
         })
         .then((res) => {
-          console.log(res.data.chatroomId);
           chatroomId.value = res.data.chatroomId;
           isModalVisible.value = true;
         });
@@ -83,11 +87,11 @@ export default {
       };
 
       activeAdminChkSocket.onmessage = (event) => {
+        console.log("activeAdminChkSocket got message");
         let admStr = event.data;
         let admArr = admStr.split(",");
-        console.log(admArr);
         activeAdmin.value = admArr;
-        console.log(activeAdmin);
+        isActivAdmin.value = activeAdmin.value[0].length > 0;
       };
 
       activeAdminChkSocket.onclose = () => {
@@ -117,6 +121,7 @@ export default {
       isModalVisible,
       chatroomId,
       activeAdmin,
+      isActivAdmin,
       fn_kakaoLogout,
       openChatModal,
       openActiveAdminChkSocket,

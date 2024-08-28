@@ -74,7 +74,6 @@ export default {
     const makeSendBody = (type) => {
       let content =
         type === "ENTER" ? `${nick.value}님이 입장하였습니다.` : message.value;
-      console.log(chatroomId.value + " in the modal");
       const sendBody = {
         chatroomId: chatroomId.value,
         id: userId.value,
@@ -93,7 +92,6 @@ export default {
 
     // 채팅방 입장
     const enterChatroom = () => {
-      console.log("enter");
       sendWebSocket(makeSendBody("ENTER"));
     };
 
