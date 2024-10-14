@@ -7,6 +7,7 @@
         <div v-else>
           <Header />
           <LeftMenu />
+          <Body />
         </div>
       </div>
     </div>
@@ -31,6 +32,7 @@ import { useRoute, useRouter } from "vue-router";
 // user
 import Header from "./user/inc/Header.vue";
 import LeftMenu from "./user/inc/LeftMenu.vue";
+import Body from "./user/inc/Body.vue";
 import Login from "./user/modules/components/login/LoginPage.vue";
 import Home from "./user/views/Home.vue";
 
@@ -46,6 +48,7 @@ export default {
     Header,
     LeftMenu,
     Login,
+    Body,
     AdminHeader,
     AdminLeftMenu,
     AdminLogin,
@@ -104,12 +107,18 @@ export default {
 @import "@/assets/css/lib/jquery-ui.min.css";
 @import "@/assets/css/lib/jquery-ui.theme.min.css";
 @import "@/assets/css/lib/sweetalert2.css";
-#app {
+/*#app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
-}
+}*/
+@import "@/assets/css/base.css";
+@import "@/assets/css/user.css";
+@import "@/assets/css/Header.css";
+@import "@/assets/css/LeftMenu.css";
+@import "@/assets/css/Body.css";
+@import "@/assets/css/ChatList.css";
 </style>

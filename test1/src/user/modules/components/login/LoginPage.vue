@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div class="bg">
+    <p>TOYCHAT</p>
     <a @click="fn_kakaoLogin">
       <img
         src="//k.kakaocdn.net/14/dn/btqCn0WEmI3/nijroPfbpCa4at5EIsjyf0/o.jpg"
@@ -40,3 +41,8 @@ export default {
   },
 };
 </script>
+
+<style>
+@import "@/assets/css/base.css";
+@import "@/assets/css/user.css";
+</style>

@@ -1,0 +1,36 @@
+@media all and (max-width: 1440px) {
+}
+@media all and (max-width: 1024px) {
+}
+@media all and (max-width: 768px) {
+}
+@media all and (max-width: 425px) {
+}
+
+/* table */
+.tblScroll {
+  overflow-x: auto;
+}
+
+.tbl {
+  width: 100%;
+  max-width: 100%;
+  min-height: 68rem;
+  table-layout: fixed;
+  border-top: 2px solid var(--color-main);
+  border-bottom: 1px solid #dbdbdb;
+}
+.tbl th,
+.tbl td {
+  padding: 1rem;
+  border-right: 1px solid #e5e5e5;
+  border-left: 1px solid #e5e5e5;
+  line-height: 2em;
+  overflow: hidden;
+}
+.tbl tr {
+  border-bottom: 1px solid #e5e5e5;
+}
+.tbl tbody tr:last-child {
+  border-bottom: 0;
+}
