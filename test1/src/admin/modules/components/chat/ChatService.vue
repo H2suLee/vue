@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>실시간 채팅 지원</h1>
+    <p>실시간 채팅 지원</p>
     <div v-if="chatrooms.length === 0">실시간 채팅 지원이 없습니다.</div>
     <div v-else>
       <table>
@@ -46,6 +46,7 @@ export default {
     let activeAdminChkSocket = null;
 
     const openChatModal = (id) => {
+      console.log("id> ", id);
       chatroomId.value = id;
       isModalVisible.value = true;
     };
@@ -67,11 +68,26 @@ export default {
     };
 
     const openActiveAdminChkSocket = () => {
-      let url = `ws://localhost:9090/ws/adminOnList?nick=${nick.value}`;
+      let url = `ws://localhost:9090/ws/adminOnList?role=adm&nick=${nick.value}`;
       activeAdminChkSocket = new WebSocket(url);
 
       activeAdminChkSocket.onopen = () => {
         console.log("activeAdminChkSocket connection opened");
+      };
+
+      activeAdminChkSocket.onmessage = (event) => {
+        console.log("activeAdminChkSocket got message");
+        chatrooms.value = [];
+        let jsonArr = JSON.parse(event.data);
+        jsonArr.forEach((item) => {
+          let jsonObj = {
+            _id: item._id,
+            participants: item.participants,
+            credt: item.credt,
+            status: item.status,
+          };
+          chatrooms.value.push(jsonObj);
+        });
       };
 
       activeAdminChkSocket.onclose = () => {
@@ -82,7 +98,6 @@ export default {
         console.error("activeAdminChkSocket error:", error);
       };
     };
-
     onMounted(() => {
       // 웹소켓 연결
       openActiveAdminChkSocket();

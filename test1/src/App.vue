@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- 사용자 -->
-    <div v-show="!isAdmin">
+    <div v-if="!isAdmin">
       <div>
         <Login v-if="!isLogin" />
         <div v-else>
@@ -11,7 +11,7 @@
       </div>
     </div>
     <!-- 관리자 -->
-    <div v-show="isAdmin">
+    <div v-if="isAdmin">
       <div>
         <AdminLogin v-if="!isLogin" />
         <div v-else>
@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 // user
@@ -55,45 +55,41 @@ export default {
   setup() {
     const route = useRoute();
     const router = useRouter();
-    const isAdmin = ref(false);
+    const isAdmin = ref(null);
+    const isLogin = ref(null);
 
-    const checkAdminRoute = () => {
-      isAdmin.value = route.path.startsWith("/admin");
+    const loginCheck = async () => {
+      // 사용자 로그인 확인
+      const isAuthenticated =
+        localStorage.getItem("isAuthenticated") === "true";
+
+      // 관리자 로그인 확인
+      let isAdminAuthenticated = false;
+      const token = localStorage.getItem("jwt");
+
+      if (token) {
+        try {
+          const payload = JSON.parse(atob(token.split(".")[1]));
+          const isExpired = payload.exp && Date.now() / 1000 > payload.exp;
+          isAdminAuthenticated = !isExpired;
+        } catch (err) {
+          isAdminAuthenticated = false;
+        }
+      }
+
+      return isAdmin.value ? isAdminAuthenticated : isAuthenticated;
     };
 
-    router.afterEach((to, from) => {
-      checkAdminRoute();
+    // 라우터 경로 변경을 감지하여 isAdmin 업데이트
+    router.afterEach(async (to, from) => {
+      isAdmin.value = to.path.startsWith("/admin");
+      isLogin.value = await loginCheck();
     });
 
     return {
       isAdmin,
+      isLogin,
     };
-  },
-  mounted() {
-    this.isAdmin = this.$route.path.startsWith("/admin");
-  },
-  computed: {
-    isLogin() {
-      // 사용자
-      const isAuthenticated =
-        localStorage.getItem("isAuthenticated") === "true";
-
-      // 관리자
-      let isAdminAuthenticated;
-      const token = localStorage.getItem("jwt");
-      if (!token) {
-        isAdminAuthenticated = false;
-      }
-      try {
-        const payload = JSON.parse(atob(token.split(".")[1]));
-
-        const isExpired = payload.exp && Date.now() / 1000 > payload.exp;
-        isAdminAuthenticated = !isExpired;
-      } catch (err) {
-        isAdminAuthenticated = false;
-      }
-      return this.isAdmin ? isAdminAuthenticated : isAuthenticated;
-    },
   },
 };
 </script>

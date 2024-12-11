@@ -59,6 +59,7 @@ export default {
       chatroomId.value = "";
       messages.value = [];
       emit("update:modalValue", false);
+      emit("reset-chatroom-id");
     };
 
     //드래그 제어

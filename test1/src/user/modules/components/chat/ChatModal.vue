@@ -1,5 +1,5 @@
 <template>
-  <div v-if="visible" class="modal-overlay" @click.self="close">
+  <div v-if="visible" class="modal-overlay" @click.self="minimize">
     <div
       class="modal-content"
       ref="modalContent"
@@ -7,6 +7,7 @@
       @mouseup="stopDrag"
       @mousemove="drag"
     >
+      <button @click="minimize">최소화</button>
       <button class="modal-close" @click="close">×</button>
       <slot></slot>
       <!-- 사용자한테만 보이는 안내창 -->
@@ -18,11 +19,14 @@
         <p>{{ msg.nick }} : {{ msg.content }}</p>
       </div>
       <!-- /메시지 -->
+
+      <!-- 입력 -->
       <div>
         <input v-model="message" placeholder="메시지 작성.." />
         <button @click="sendMessage">전송</button>
         <button @click="close">종료</button>
       </div>
+      <!-- /입력 -->
       <!-- 모달 안의 내용을 삽입할 자리 -->
     </div>
   </div>
@@ -73,7 +77,11 @@ export default {
     // 채팅 바디 생성
     const makeSendBody = (type) => {
       let content =
-        type === "ENTER" ? `${nick.value}님이 입장하였습니다.` : message.value;
+        type === "ENTER"
+          ? `${nick.value}님이 입장하였습니다.`
+          : type === "END"
+          ? "대화가 종료되었습니다."
+          : message.value;
       const sendBody = {
         chatroomId: chatroomId.value,
         id: userId.value,
@@ -116,6 +124,7 @@ export default {
 
       websocket.onmessage = (event) => {
         let jsondata = JSON.parse(event.data);
+        console.log(jsondata);
         let pushMsg = { nick: jsondata.nick, content: jsondata.content };
         messages.value.push(pushMsg);
       };
@@ -131,9 +140,19 @@ export default {
 
     // 닫기
     const close = () => {
-      chatroomId.value = "";
-      messages.value = [];
-      websocket.close();
+      if (confirm("종료하시겠습니까?")) {
+        sendWebSocket(makeSendBody("END"));
+
+        chatroomId.value = "";
+        messages.value = [];
+        websocket.close();
+        emit("update:modelValue", false);
+        emit("reset-chatroom-id");
+      }
+    };
+
+    // 최소화
+    const minimize = () => {
       emit("update:modelValue", false);
     };
 
@@ -160,6 +179,8 @@ export default {
     watch(
       () => props.modelValue,
       (newValue) => {
+        console.log("watch : " + newValue);
+        console.log("and : " + chatroomId.value);
         visible.value = newValue;
         if (newValue) {
           if (websocket === null || websocket.readyState === WebSocket.CLOSED) {
@@ -186,6 +207,7 @@ export default {
       messages,
       sendWebSocket,
       sendMessage,
+      minimize,
     };
   },
 };

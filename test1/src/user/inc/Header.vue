@@ -10,13 +10,14 @@
       :nick="nick"
       :role="role"
       :chatroomId="chatroomId"
+      @reset-chatroom-id="resetChatroomId"
     >
       <template #default>
         <h2>대화</h2>
         <p>질문이 있으신가요? 지금 문의하세요!</p>
         <div>
           <div v-if="!isActivAdmin">
-            <p>가능한 상담원이 없습니다.</p>
+            <p>연결중입니다. 잠시만 기다려주세요...</p>
           </div>
           <div v-else>
             <p>온라인 문의가 가능한 상태입니다.</p>
@@ -62,24 +63,30 @@ export default {
         router.go("/");
       });
     };
-
+    const resetChatroomId = () => {
+      chatroomId.value = "";
+    };
     const openChatModal = () => {
       // 채팅방 아이디
-      axios
-        .post(`/api/chat/create`, {
-          id: userId.value,
-          nick: nick.value,
-        })
-        .then((res) => {
-          chatroomId.value = res.data.chatroomId;
-          isModalVisible.value = true;
-        });
+      if (chatroomId.value == "") {
+        axios
+          .post(`/api/chat/create`, {
+            id: userId.value,
+            nick: nick.value,
+          })
+          .then((res) => {
+            chatroomId.value = res.data.chatroomId;
+            isModalVisible.value = true;
+          });
+      } else {
+        isModalVisible.value = true;
+      }
     };
 
     // 소켓 오픈
     const openActiveAdminChkSocket = () => {
       activeAdminChkSocket = new WebSocket(
-        "ws://localhost:9090/ws/adminOnList"
+        "ws://localhost:9090/ws/adminOnList?role=usr"
       );
 
       activeAdminChkSocket.onopen = () => {
@@ -125,6 +132,7 @@ export default {
       fn_kakaoLogout,
       openChatModal,
       openActiveAdminChkSocket,
+      resetChatroomId,
     };
   },
 };
