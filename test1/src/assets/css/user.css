@@ -1,0 +1,160 @@
+body {
+  overflow: hidden;
+}
+
+/*반응형 샘플*/
+@media all and (max-width: 1440px) {
+}
+@media all and (max-width: 1024px) {
+}
+@media all and (max-width: 768px) {
+}
+@media all and (max-width: 425px) {
+}
+/*반응형 샘플*/
+
+/* 메인폰트 - 샌드박스어그로체 */
+@font-face {
+  font-family: "SBAggro";
+  src: url("//cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/SBAggroL.woff")
+    format("woff");
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: "SBAggro";
+  src: url("//cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/SBAggroM.woff")
+    format("woff");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "SBAggro";
+  src: url("//cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/SBAggroB.woff")
+    format("woff");
+  font-weight: 500;
+  font-style: normal;
+}
+
+/* 루트 설정 */
+:root {
+  --color-main: #3071f2;
+  --color-hover: #f2f2ff;
+  --color-point: #003584;
+
+  --color-font: #777;
+}
+
+#app {
+  height: 100%;
+  margin-top: 0 !important;
+  font-family: "SBAggro" !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-weight: 300;
+  background-color: #f2f2ff;
+  text-align: center;
+}
+
+#app div {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 3.2rem;
+}
+
+#app div.bg {
+  height: 100vh !important;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#app:has(div.bg) {
+  background-color: #fff !important;
+}
+
+.dpf {
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
+}
+
+.em {
+  font-size: 2rem;
+}
+
+.dpn {
+  display: none;
+}
+
+img {
+  margin-right: 0.4rem;
+}
+
+.tit {
+  font-size: 2.4rem;
+  font-weight: 400;
+  color: #444;
+}
+
+.navi {
+  font-size: 1.4rem;
+  color: var(--color-font);
+}
+
+.navi ul {
+  display: flex;
+  gap: 16px;
+}
+
+.navi ul li {
+  position: relative;
+}
+
+.navi ul li:after {
+  content: "";
+  position: absolute;
+  display: block;
+  width: 6px;
+  height: 6px;
+  right: -10px;
+  top: 50%;
+  border: solid #5a6a72;
+  border-width: 1px 1px 0 0;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.navi ul li:last-child::after {
+  display: none;
+}
+
+.noList {
+  height: calc(100% - 16rem);
+  align-items: center;
+  justify-content: center !important;
+  border: 1px solid #dbdbdb;
+  text-align: center;
+  margin-bottom: 16rem !important;
+  border-radius: 1.6rem;
+  color: #777;
+}
+
+@media all and (max-width: 1440px) {
+  #app div {
+    gap: 1.6rem;
+  }
+}
+@media all and (max-width: 1024px) {
+}
+@media all and (max-width: 768px) {
+  #app div {
+    gap: 0.8rem;
+  }
+}
+@media all and (max-width: 425px) {
+  .tit {
+    font-size: 2rem;
+  }
+}

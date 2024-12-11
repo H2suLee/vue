@@ -7,10 +7,12 @@
       @mouseup="stopDrag"
       @mousemove="drag"
     >
-      <button class="modal-close" @click="close">×</button>
+      <button class="modal-close" @click="close"></button>
       <slot></slot>
       <!-- 사용자한테만 보이는 안내창 -->
-      <div v-show="role == 'USR'"></div>
+      <div v-show="role == 'USR'" class="userW">
+        <div class="userChatBox">사용자에게만 보여요</div>
+      </div>
       <!-- /사용자한테만 보이는 안내창 -->
 
       <!-- 메시지 -->
@@ -18,10 +20,12 @@
         <p>{{ msg.nick }} : {{ msg.content }}</p>
       </div>
       <!-- /메시지 -->
-      <div>
+      <div class="inputMsg">
         <input v-model="message" placeholder="메시지 작성.." />
-        <button @click="sendMessage">전송</button>
-        <button @click="close">종료</button>
+        <button @click="sendMessage" class="sendBtn">
+          <img src="/src/assets/images/send.svg" alt="전송 버튼 아이콘" />
+        </button>
+        <!--<button @click="close">종료</button>-->
       </div>
       <!-- 모달 안의 내용을 삽입할 자리 -->
     </div>
@@ -190,37 +194,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-content {
-  background: #fff;
-  border-radius: 8px;
-  padding: 20px;
-  position: absolute; /* 변경: absolute로 설정하여 드래그 시 이동 가능 */
-  cursor: move; /* 드래그 가능한 모양으로 변경 */
-  max-width: 500px;
-  width: 100%;
-}
-
-.modal-close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  border: none;
-  background: none;
-  font-size: 20px;
-  cursor: pointer;
-}
-</style>
