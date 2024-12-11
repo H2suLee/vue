@@ -1,9 +1,33 @@
 <template>
-  <div>
-    헤더
-    <p>홍길동 접속중..</p>
-    <a @click="fn_kakaoLogout"><p>로그아웃</p></a>
-    <button @click="openChatModal">실시간 채팅 상담(챗 모달 팝업)</button>
+  <div class="header">
+    <h1><img src="/src/assets/images/logomini.svg" alt="TOYCHATLOGO" /></h1>
+    <ul class="dpf">
+      <li>
+        <img src="/src/assets/images/userlogin.svg" alt="사람 모양의 아이콘" />
+        <span class="em">홍길동</span>님&nbsp;&nbsp;&nbsp;접속중
+      </li>
+      <li>
+        <a @click="fn_kakaoLogout"
+          ><img
+            src="/src/assets/images/userlogout.svg"
+            alt="로그아웃 아이콘"
+          />로그아웃</a
+        >
+      </li>
+      <li>
+        <button @click="openChatModal">
+          <!--         <img
+            src="/src/assets/images/chat.svg"
+            alt="실시간 채팅 상담(챗 모달 팝업)"
+          />-->
+          <div class="roadBox" title="채팅을 시작하려면 클릭해주세요!">
+            <span class="circle circle1"></span>
+            <span class="circle circle2"></span>
+            <span class="circle circle3"></span>
+          </div>
+        </button>
+      </li>
+    </ul>
     <ChatModal
       v-model:modelValue="isModalVisible"
       :userId="userId"
@@ -12,21 +36,29 @@
       :chatroomId="chatroomId"
       @reset-chatroom-id="resetChatroomId"
     >
-      <template #default>
-        <h2>대화</h2>
-        <p>질문이 있으신가요? 지금 문의하세요!</p>
-        <div>
-          <div v-if="!isActivAdmin">
-            <p>연결중입니다. 잠시만 기다려주세요...</p>
-          </div>
-          <div v-else>
-            <p>온라인 문의가 가능한 상태입니다.</p>
-            <div v-for="(value, index) in activeAdmin" :key="index">
-              {{ value }}
-            </div>
-            <!-- 말풍선 -->
-            <p>안녕하세요! 어떻게 도와드릴까요?</p>
-          </div>
+      <template #default class="chatBox">
+        <h2 class="dpn">대화</h2>
+        <div class="chatW">
+          <ul class="chatHd">
+            <li>질문이 있으신가요? 지금 문의하세요!</li>
+            <li>
+              <div v-if="!isActivAdmin" class="impsbChat">
+                <p class="timeAlert">
+                  오전 10시부터 오후 6시까지<span class="dpn"
+                    >가능한 상담원이 없습니다.</span
+                  >
+                </p>
+              </div>
+              <div v-else class="psbChat">
+                <p>온라인 문의가 가능한 상태입니다.</p>
+                <div v-for="(value, index) in activeAdmin" :key="index">
+                  {{ value }}
+                </div>
+                <!-- 말풍선 -->
+                <p class="agentChat">안녕하세요! 어떻게 도와드릴까요?</p>
+              </div>
+            </li>
+          </ul>
         </div>
       </template>
     </ChatModal>

@@ -1,0 +1,246 @@
+.header {
+  width: 100%;
+  height: 6rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4rem;
+  background-color: #fff;
+  box-shadow: 0 0 4px #b6c1ff;
+}
+
+.header .dpf li,
+.header .dpf li a {
+  color: var(--color-font);
+}
+
+.header .dpf li a {
+  cursor: pointer;
+}
+
+.header .dpf li .em {
+  color: #444;
+}
+
+.header .roadBox {
+  position: relative;
+  flex-direction: row;
+  align-items: center;
+  margin: 0 auto;
+  height: 40px;
+  gap: 4px !important;
+  padding: 1rem;
+  background-color: var(--color-main);
+  border-radius: 10rem;
+  overflow: hidden;
+}
+.header .roadBox:hover {
+  background-color: var(--color-point);
+}
+.header .circle {
+  background: #fff;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+}
+.header .circle2 {
+  animation-delay: 0.3s;
+}
+.header .circle3 {
+  animation-delay: 0.6s;
+}
+.header .roadBox .circle {
+  animation-name: roading;
+  animation-duration: 2.4s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+@keyframes roading {
+  30% {
+    transform: translateY(-4px);
+  }
+  50% {
+    transform: translateY(2px);
+  }
+  80% {
+    transform: translateY(0px);
+  }
+}
+
+@media all and (max-width: 1024px) {
+  .header {
+    padding: 0 3.2rem;
+  }
+}
+
+@media all and (max-width: 768px) {
+  .header {
+    padding: 0 2.4rem;
+  }
+  .header .dpf li:first-child {
+    display: none;
+  }
+}
+
+@media all and (max-width: 425px) {
+  .header {
+    padding: 0 1.6rem;
+  }
+  .header .dpf a {
+    font-size: 1.4rem;
+  }
+}
+
+/*********************************/
+/********* 채팅 팝업 모달 *********/
+/*********************************/
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.modal-content {
+  position: fixed;
+  /*top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); 모바일일 때 적용으로 변경 */
+  right: 4rem;
+  top: 6rem;
+  background: #fff;
+  border-radius: 1.6rem;
+  /* position: absolute; 변경: absolute로 설정하여 드래그 시 이동 가능 */
+  cursor: move; /*드래그 가능한 모양으로 변경 */
+  max-width: 40rem;
+  max-height: 80rem;
+  min-width: 3.2rem;
+  min-height: 56rem;
+  width: 100%;
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 2px 0px;
+}
+
+.modal-close {
+  position: absolute;
+  bottom: -56px;
+  right: 0;
+  background-color: var(--color-main);
+  width: 4.8rem;
+  height: 4.8rem;
+  font-size: 40px;
+  cursor: pointer;
+  border-radius: 10rem;
+}
+
+.modal-close:hover {
+  background-color: var(--color-point);
+}
+
+.modal-close:before,
+.modal-close:after {
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  content: " ";
+  height: 24px;
+  width: 2px;
+  background-color: #fff;
+}
+
+.modal-close:before {
+  transform: rotate(45deg);
+}
+
+.modal-close:after {
+  transform: rotate(-45deg);
+}
+
+.chatW {
+  gap: 0.8rem !important;
+  height: 10rem;
+}
+
+.userW {
+  height: 30rem;
+  width: 100%;
+  padding: 2rem;
+}
+
+.chatW .chatHd {
+  background-color: var(--color-main);
+  color: #fff;
+  width: 100%;
+  height: 10rem;
+  border-radius: 1.5rem 1.5rem 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  font-size: 2rem;
+}
+
+.chatW .chatHd .timeAlert {
+  font-size: 1.4rem;
+  color: #fff;
+}
+
+.chatW .chatHd .timeAlert:before {
+  content: "●";
+  color: rgb(212, 212, 212);
+  margin-right: 0.4rem;
+}
+
+.chatW .chatHd .psbChat:before {
+  content: "●";
+  color: greenyellow;
+  margin-right: 0.4rem;
+}
+
+.chatW .impsbChat,
+.chatW .psbChat {
+  width: 100%;
+  display: flex;
+}
+
+.chatW .impsbChat {
+  justify-content: center;
+}
+
+.chatW .impsbChat p {
+  width: 100%;
+  color: #777;
+}
+
+.inputMsg {
+  padding: 1.6rem;
+  height: max-content;
+  justify-content: space-around !important;
+  gap: 0.8rem !important;
+}
+
+.inputMsg input {
+  width: 80%;
+  height: 4.8rem;
+  padding: 1.6rem;
+  border: 1px solid #dbdbdb;
+  border-radius: 0.4rem;
+}
+
+.inputMsg button {
+  width: 10%;
+}
+
+@media all and (max-width: 430px) {
+  .modal-content {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /*모바일일 때 적용으로 변경 */
+  }
+}

@@ -1,16 +1,16 @@
 <template>
   <div>
-    <h1>채팅 이력</h1>
-    <table>
+    <h1 class="dpn">채팅 이력</h1>
+    <table class="tbl">
       <!-- 생성일, 답변자, 내용, 마지막 채팅일시 -->
       <thead>
         <tr>
-          <td>roomId</td>
-          <td>생성일</td>
-          <td>답변자</td>
+          <td class="wd6">roomId</td>
+          <td class="wd12">생성일</td>
+          <td class="wd12">답변자</td>
           <td>채팅</td>
-          <td>마지막 채팅일</td>
-          <td>상태(대기/진행중/완료)</td>
+          <td class="wd12">마지막 채팅일</td>
+          <td class="wd12">상태(대기/진행중/완료)</td>
         </tr>
       </thead>
       <tbody>
