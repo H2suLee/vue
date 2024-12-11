@@ -7,7 +7,6 @@
       @mouseup="stopDrag"
       @mousemove="drag"
     >
-
       <button @click="minimize">최소화</button>
       <button class="modal-close" @click="close"></button>
       <slot></slot>
@@ -26,7 +25,10 @@
       <div class="inputMsg">
         <input v-model="message" placeholder="메시지 작성.." />
         <button @click="sendMessage" class="sendBtn">
-          <img src="/src/assets/images/send.svg" alt="전송 버튼 아이콘" />
+          <img
+            src="../../../../assets/images/send.svg"
+            alt="전송 버튼 아이콘"
+          />
         </button>
         <!--<button @click="close">종료</button>-->
       </div>

@@ -1,15 +1,15 @@
 <template>
   <div class="header">
-    <h1><img src="/src/assets/images/logomini.svg" alt="TOYCHATLOGO" /></h1>
+    <h1><img src="../../assets/images/logomini.svg" alt="TOYCHATLOGO" /></h1>
     <ul class="dpf">
       <li>
-        <img src="/src/assets/images/userlogin.svg" alt="사람 모양의 아이콘" />
+        <img src="../../assets/images/userlogin.svg" alt="사람 모양의 아이콘" />
         <span class="em">홍길동</span>님&nbsp;&nbsp;&nbsp;접속중
       </li>
       <li>
         <a @click="fn_kakaoLogout"
           ><img
-            src="/src/assets/images/userlogout.svg"
+            src="../../assets/images/userlogout.svg"
             alt="로그아웃 아이콘"
           />로그아웃</a
         >
