@@ -40,10 +40,12 @@
     <ChatHistoryModal
       v-model:modalValue="isChatHistoryModalVisible"
       :chatroomId="chatroomId"
+      @reset-chatroom-id="resetChatroomId"
     />
     <ChatManageModal
       v-model:modalValue="isChatManageModalVisible"
       :chatroomId="chatroomId"
+      @reset-chatroom-id="resetChatroomId"
     />
   </div>
 </template>
@@ -66,13 +68,10 @@ export default {
 
     // 채팅 리스트 가져오기 함수
     const getChatroomMngList = async () => {
-      console.log("admId : ", userId.value);
-      console.log("admnick : ", nick.value);
       try {
         const response = await axios.post("/api/admin/chat/mnglist", {
           id: userId.value,
         });
-        console.log("res : ", response.data);
         chatrooms.value = response.data;
       } catch (error) {
         console.error("Error fetching chat list:", error);
@@ -81,6 +80,7 @@ export default {
 
     // 채팅창 열기
     const openChatHistoryModal = (id) => {
+      console.log("id: ", id);
       chatroomId.value = id;
       isChatHistoryModalVisible.value = true;
     };
@@ -89,6 +89,10 @@ export default {
     const openChatManageModal = (id) => {
       chatroomId.value = id;
       isChatManageModalVisible.value = true;
+    };
+
+    const resetChatroomId = () => {
+      chatroomId.value = "";
     };
     // mounted 훅에서 getMyChatroomList 호출
     onMounted(() => {
@@ -104,6 +108,7 @@ export default {
       isChatManageModalVisible,
       openChatHistoryModal,
       openChatManageModal,
+      resetChatroomId,
     };
   },
 };

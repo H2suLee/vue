@@ -34,6 +34,7 @@
       :nick="nick"
       :role="role"
       :chatroomId="chatroomId"
+      @reset-chatroom-id="resetChatroomId"
     >
       <template #default class="chatBox">
         <h2 class="dpn">대화</h2>
@@ -94,24 +95,30 @@ export default {
         router.go("/");
       });
     };
-
+    const resetChatroomId = () => {
+      chatroomId.value = "";
+    };
     const openChatModal = () => {
       // 채팅방 아이디
-      axios
-        .post(`/api/chat/create`, {
-          id: userId.value,
-          nick: nick.value,
-        })
-        .then((res) => {
-          chatroomId.value = res.data.chatroomId;
-          isModalVisible.value = true;
-        });
+      if (chatroomId.value == "") {
+        axios
+          .post(`/api/chat/create`, {
+            id: userId.value,
+            nick: nick.value,
+          })
+          .then((res) => {
+            chatroomId.value = res.data.chatroomId;
+            isModalVisible.value = true;
+          });
+      } else {
+        isModalVisible.value = true;
+      }
     };
 
     // 소켓 오픈
     const openActiveAdminChkSocket = () => {
       activeAdminChkSocket = new WebSocket(
-        "ws://localhost:9090/ws/adminOnList"
+        "ws://localhost:9090/ws/adminOnList?role=usr"
       );
 
       activeAdminChkSocket.onopen = () => {
@@ -157,6 +164,7 @@ export default {
       fn_kakaoLogout,
       openChatModal,
       openActiveAdminChkSocket,
+      resetChatroomId,
     };
   },
 };

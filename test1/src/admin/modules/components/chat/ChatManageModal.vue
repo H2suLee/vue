@@ -100,6 +100,7 @@ export default {
       category.value = "";
       memo.value = "";
       emit("update:modalValue", false);
+      emit("reset-chatroom-id");
     };
 
     //드래그 제어

@@ -31,6 +31,7 @@
     <ChatHistoryModal
       v-model:modalValue="isChatHistoryModalVisible"
       :chatroomId="chatroomId"
+      @reset-chatroom-id="resetChatroomId"
     />
   </div>
 </template>
@@ -67,6 +68,10 @@ export default {
       isChatHistoryModalVisible.value = true;
     };
 
+    const resetChatroomId = () => {
+      chatroomId.value = "";
+    };
+
     // mounted 훅에서 getMyChatroomList 호출
     onMounted(() => {
       getMyChatroomList();
@@ -79,6 +84,7 @@ export default {
       chatroomId,
       isChatHistoryModalVisible,
       openChatHistoryModal,
+      resetChatroomId,
     };
   },
 };
