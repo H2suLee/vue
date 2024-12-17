@@ -1,9 +1,9 @@
 <template>
   <div>
-    <p>실시간 채팅 지원</p>
+    <h1 class="dpn">실시간 채팅 지원</h1>
     <div v-if="chatrooms.length === 0">실시간 채팅 지원이 없습니다.</div>
     <div v-else>
-      <table>
+      <table class="tbl">
         <!-- 내용, 날짜, 상태 -->
         <tbody>
           <tr
@@ -11,10 +11,10 @@
             :key="chat.chatroomId"
             @click="openChatModal(chat._id)"
           >
-            <td>rid: {{ chat._id }}</td>
-            <td>닉: {{ chat.participants[0].nick }}</td>
-            <td>생성일: {{ chat.credt }}</td>
-            <td>상태: {{ chat.status }}</td>
+            <td class="wd12">rid: {{ chat._id }}</td>
+            <td class="wd12">닉: {{ chat.participants[0].nick }}</td>
+            <td class="wd12">생성일: {{ chat.credt }}</td>
+            <td class="wd12">상태: {{ chat.status }}</td>
           </tr>
         </tbody>
       </table>

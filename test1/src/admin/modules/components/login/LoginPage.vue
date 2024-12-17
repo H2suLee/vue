@@ -1,18 +1,20 @@
 <template>
-  <div class="login">
-    <h1>Login</h1>
-    <form @submit.prevent="handleLogin">
-      <div>
-        <label for="username">Id:</label>
-        <input type="text" v-model="id" id="id" required />
-      </div>
-      <div>
-        <label for="password">Password:</label>
-        <input type="password" v-model="password" id="password" required />
-      </div>
-      <button type="submit">Login</button>
-      <div v-if="error" class="error">{{ error }}</div>
-    </form>
+  <div class="bg">
+    <div class="login">
+      <h1>Login</h1>
+      <form @submit.prevent="handleLogin">
+        <div>
+          <label for="username">Id:</label>
+          <input type="text" v-model="id" id="id" required />
+        </div>
+        <div>
+          <label for="password">Password:</label>
+          <input type="password" v-model="password" id="password" required />
+        </div>
+        <button type="submit">Login</button>
+        <div v-if="error" class="error">{{ error }}</div>
+      </form>
+    </div>
   </div>
 </template>
 

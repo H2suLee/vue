@@ -1,18 +1,18 @@
 <template>
   <div>
-    <h1>채팅 관리</h1>
-    <table>
+    <h1 class="dpn">채팅 관리</h1>
+    <table class="tbl">
       <!-- 카테고리, 상태(진행중/완료), 채팅방 생성일, 마지막 수정,일 문의자, 관리-->
       <thead>
         <tr>
-          <td>roomId</td>
-          <td>상태(진행중/완료)</td>
-          <td>카테고리</td>
-          <td>생성일</td>
-          <td>수정일</td>
-          <td>문의자</td>
-          <td>답변자</td>
-          <td>관리</td>
+          <td class="wd6">roomId</td>
+          <td class="wd12">상태(진행중/완료)</td>
+          <td class="wd12">카테고리</td>
+          <td class="wd12">생성일</td>
+          <td class="wd12">수정일</td>
+          <td class="wd12">문의자</td>
+          <td class="wd12">답변자</td>
+          <td class="wd6">관리</td>
         </tr>
       </thead>
 
@@ -31,7 +31,7 @@
           <td>{{ chat.adm.nick }}</td>
           <td>
             <button @click.stop="openChatManageModal(chat.chatroomId)">
-              관리(클릭하면 카테고리/내용 등록할 수 있음)
+              관리
             </button>
           </td>
         </tr>
