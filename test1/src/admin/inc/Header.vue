@@ -1,8 +1,22 @@
 <template>
-  <div>
-    관리자 헤더
-    <p>관리자 접속중..</p>
-    <a @click="handleLogout">로그아웃</a>
+  <div class="header">
+    <h1>
+      <img src="../../assets/images/logomini.svg" alt="TOYCHATLOGO" /> 관리자
+    </h1>
+    <ul class="dpf">
+      <li>
+        <img src="../../assets/images/userlogin.svg" alt="사람 모양의 아이콘" />
+        <span class="em">관리자</span>님&nbsp;&nbsp;&nbsp;접속중
+      </li>
+      <li>
+        <a @click="handleLogout"
+          ><img
+            src="../../assets/images/userlogout.svg"
+            alt="로그아웃 아이콘"
+          />로그아웃</a
+        >
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -51,7 +65,7 @@ export default {
     // 브라우저 알림 허용 확인
     Notification.requestPermission().then((permission) => {
       if (permission === "granted") {
-        alert("Notification permission granted.");
+        //alert("Notification permission granted.");
       } else {
         alert("Unable to get permission to notify.");
       }
@@ -98,4 +112,3 @@ export default {
   },
 };
 </script>
-

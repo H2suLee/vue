@@ -54,7 +54,7 @@ import ChatHistoryModal from "../../../../user/modules/components/chat/ChatHisto
 import ChatModal from "../../../../user/modules/components/chat/ChatModal.vue";
 
 export default {
-  components: { ChatHistoryModal },
+  components: { ChatHistoryModal, ChatModal },
   setup() {
     const userId = ref(localStorage.getItem("adminId"));
     const nick = ref(localStorage.getItem("adminNick"));
@@ -101,9 +101,11 @@ export default {
     return {
       userId,
       nick,
+      role,
       chatrooms,
       chatroomId,
       isChatHistoryModalVisible,
+      isModalVisible,
       openChatHistoryModal,
       openChatModal,
       resetChatroomId,
