@@ -15,7 +15,7 @@
           <img
             src="../../assets/images/chatlist.svg"
             alt="채팅 이력 아이콘"
-          />메뉴 추가 02
+          />메뉴 추가 002
         </router-link>
       </li>
     </ul>
