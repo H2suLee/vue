@@ -6,7 +6,8 @@
     <ul class="dpf">
       <li>
         <img src="../../assets/images/userlogin.svg" alt="사람 모양의 아이콘" />
-        <span class="em">관리자</span>님&nbsp;&nbsp;&nbsp;접속중
+        <span class="em">{{ nick }}</span
+        >&nbsp;&nbsp;님&nbsp;&nbsp;&nbsp;접속중
       </li>
       <li>
         <a @click="handleLogout"
@@ -21,7 +22,7 @@
 </template>
 
 <script>
-import { onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { initializeApp } from "firebase/app";
 import { getToken, getMessaging, onMessage } from "firebase/messaging";
@@ -30,7 +31,7 @@ import axios from "axios";
 export default {
   setup() {
     const router = useRouter();
-
+    const nick = ref(localStorage.getItem("adminNick"));
     // 로그아웃
     const handleLogout = () => {
       localStorage.removeItem("jwt");
@@ -107,6 +108,7 @@ export default {
     });
 
     return {
+      nick,
       handleLogout,
     };
   },

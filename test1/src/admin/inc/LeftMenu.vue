@@ -2,8 +2,8 @@
   <div class="leftMenu">
     <p class="dpn">왼쪽메뉴</p>
     <ul>
-      <li class="on">
-        <router-link to="/admin/chat/mnglist">
+      <li>
+        <router-link to="/admin/chat/mnglist" active-class="on">
           <img
             src="../../assets/images/chatlist.svg"
             alt="채팅 이력 아이콘"
@@ -11,7 +11,7 @@
         </router-link>
       </li>
       <li>
-        <router-link to="/admin/chat/serviceList">
+        <router-link to="/admin/chat/serviceList" active-class="on">
           <img
             src="../../assets/images/chatlist.svg"
             alt="채팅 이력 아이콘"
@@ -19,7 +19,7 @@
         </router-link>
       </li>
       <li>
-        <router-link to="/admin/chat/myList">
+        <router-link to="/admin/chat/myList" active-class="on">
           <img
             src="../../assets/images/chatlist.svg"
             alt="채팅 이력 아이콘"

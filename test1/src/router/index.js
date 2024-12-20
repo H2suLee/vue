@@ -1,12 +1,12 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Home from "../user/views/Home.vue";
+//import Home from "../user/views/Home.vue";
 import AdminHome from "../admin/views/Home.vue";
 
 const routes = [
   {
     path: "/",
     name: "Home",
-    component: Home,
+    component: () => import("../user/views/Home.vue"),
   },
   {
     path: "/chat/list",

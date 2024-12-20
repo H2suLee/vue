@@ -1,8 +1,17 @@
 <template>
-  <div>
-    <h1 class="dpn">실시간 채팅 지원</h1>
+  <div class="contentW">
+    <ul>
+      <li class="tit">실시간 채팅 지원</li>
+      <li class="navi">
+        <ul>
+          <li>홈</li>
+          <li>실시간 채팅 지원</li>
+        </ul>
+      </li>
+    </ul>
     <div v-if="chatrooms.length === 0">실시간 채팅 지원이 없습니다.</div>
     <div v-else>
+      <h1 class="dpn">실시간 채팅 지원</h1>
       <table class="tbl">
         <!-- 내용, 날짜, 상태 -->
         <tbody>
@@ -46,7 +55,6 @@ export default {
     let activeAdminChkSocket = null;
 
     const openChatModal = (id) => {
-      console.log("id> ", id);
       chatroomId.value = id;
       isModalVisible.value = true;
     };
