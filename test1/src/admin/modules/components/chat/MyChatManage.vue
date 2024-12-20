@@ -1,37 +1,48 @@
 <template>
-  <div>
-    <h1 class="dpn">채팅 이력</h1>
-    <table class="tbl">
-      <!-- 생성일, 답변자, 내용, 마지막 채팅일시 -->
-      <thead>
-        <tr>
-          <td class="wd6">roomId</td>
-          <td class="wd12">생성일</td>
-          <td class="wd12">답변자</td>
-          <td>채팅</td>
-          <td class="wd12">마지막 채팅일</td>
-          <td class="wd12">상태(대기/진행중/완료)</td>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="chat in chatrooms"
-          :key="chat.chatroomId"
-          @click="
-            chat.status === '02'
-              ? openChatModal(chat.chatroomId)
-              : openChatHistoryModal(chat.chatroomId)
-          "
-        >
-          <td>{{ chat.chatroomId }}</td>
-          <td>{{ chat.credt }}</td>
-          <td>{{ chat.adm.nick }}</td>
-          <td>{{ chat.lastContent }}</td>
-          <td>{{ chat.lastCredt }}</td>
-          <td>{{ chat.status }}</td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="contentW">
+    <ul>
+      <li class="tit">내 채팅</li>
+      <li class="navi">
+        <ul>
+          <li>홈</li>
+          <li>내 채팅</li>
+        </ul>
+      </li>
+    </ul>
+    <div>
+      <h1 class="dpn">내 채팅</h1>
+      <table class="tbl">
+        <!-- 생성일, 답변자, 내용, 마지막 채팅일시 -->
+        <thead>
+          <tr>
+            <td class="wd6">roomId</td>
+            <td class="wd12">생성일</td>
+            <td class="wd12">답변자</td>
+            <td>채팅</td>
+            <td class="wd12">마지막 채팅일</td>
+            <td class="wd12">상태(대기/진행중/완료)</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="chat in chatrooms"
+            :key="chat.chatroomId"
+            @click="
+              chat.status === '02'
+                ? openChatModal(chat.chatroomId)
+                : openChatHistoryModal(chat.chatroomId)
+            "
+          >
+            <td>{{ chat.chatroomId }}</td>
+            <td>{{ chat.credt }}</td>
+            <td>{{ chat.adm.nick }}</td>
+            <td>{{ chat.lastContent }}</td>
+            <td>{{ chat.lastCredt }}</td>
+            <td>{{ chat.status }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     <ChatHistoryModal
       v-model:modalValue="isChatHistoryModalVisible"
       :chatroomId="chatroomId"

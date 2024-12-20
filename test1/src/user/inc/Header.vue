@@ -4,7 +4,8 @@
     <ul class="dpf">
       <li>
         <img src="../../assets/images/userlogin.svg" alt="사람 모양의 아이콘" />
-        <span class="em">홍길동</span>님&nbsp;&nbsp;&nbsp;접속중
+        <span class="em">{{ nick }}</span
+        >&nbsp;&nbsp;님&nbsp;&nbsp;&nbsp;접속중
       </li>
       <li>
         <a @click="fn_kakaoLogout"
@@ -29,6 +30,7 @@
       </li>
     </ul>
     <ChatModal
+      ref="chatModal"
       v-model:modelValue="isModalVisible"
       :userId="userId"
       :nick="nick"
@@ -66,35 +68,38 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import ChatModal from "../modules/components/chat/ChatModal.vue";
 import axios from "axios";
 
 export default {
   components: { ChatModal },
-  setup() {
-    const router = useRouter();
-
-    const userId = ref(localStorage.getItem("id"));
-    const nick = ref(localStorage.getItem("nick"));
-    const role = ref("USR");
-    const isModalVisible = ref(false);
-    const chatroomId = ref("");
-    let activeAdminChkSocket = null;
-    let activeAdmin = ref([]);
-    let isActivAdmin = ref(false);
-
-    const fn_kakaoLogout = () => {
+  methods: {
+    fn_kakaoLogout() {
+      console.log(this.$refs.chatModal);
       window.Kakao.Auth.logout((res) => {
         if (res) {
           localStorage.setItem("isAuthenticated", false);
           localStorage.setItem("id", "");
           localStorage.setItem("nick", "");
+          this.$refs.chatModal.closeChatroom();
+          this.router.go("/");
         }
-        router.go("/");
       });
-    };
+    },
+  },
+  setup() {
+    const router = useRouter();
+    const userId = ref(localStorage.getItem("id"));
+    const nick = ref(localStorage.getItem("nick"));
+    const role = ref("USR");
+    const isModalVisible = ref(false);
+    const chatroomId = ref(localStorage.getItem("chatroomId"));
+    let activeAdminChkSocket = null;
+    let activeAdmin = ref([]);
+    let isActivAdmin = ref(false);
+
     const resetChatroomId = () => {
       chatroomId.value = "";
     };
@@ -153,7 +158,11 @@ export default {
       }
     });
 
+    watch(chatroomId, (newValue) => {
+      localStorage.setItem("chatroomId", newValue);
+    });
     return {
+      router,
       userId,
       nick,
       role,
@@ -161,7 +170,6 @@ export default {
       chatroomId,
       activeAdmin,
       isActivAdmin,
-      fn_kakaoLogout,
       openChatModal,
       openActiveAdminChkSocket,
       resetChatroomId,

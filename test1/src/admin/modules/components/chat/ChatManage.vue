@@ -1,42 +1,53 @@
 <template>
-  <div>
-    <h1 class="dpn">채팅 관리</h1>
-    <table class="tbl">
-      <!-- 카테고리, 상태(진행중/완료), 채팅방 생성일, 마지막 수정,일 문의자, 관리-->
-      <thead>
-        <tr>
-          <td class="wd6">roomId</td>
-          <td class="wd12">상태(진행중/완료)</td>
-          <td class="wd12">카테고리</td>
-          <td class="wd12">생성일</td>
-          <td class="wd12">수정일</td>
-          <td class="wd12">문의자</td>
-          <td class="wd12">답변자</td>
-          <td class="wd6">관리</td>
-        </tr>
-      </thead>
+  <div class="contentW">
+    <ul>
+      <li class="tit">채팅 관리</li>
+      <li class="navi">
+        <ul>
+          <li>홈</li>
+          <li>채팅 관리</li>
+        </ul>
+      </li>
+    </ul>
+    <div>
+      <h1 class="dpn">채팅 관리</h1>
+      <table class="tbl">
+        <!-- 카테고리, 상태(진행중/완료), 채팅방 생성일, 마지막 수정,일 문의자, 관리-->
+        <thead>
+          <tr>
+            <td class="wd6">roomId</td>
+            <td class="wd12">상태(진행중/완료)</td>
+            <td class="wd12">카테고리</td>
+            <td class="wd12">생성일</td>
+            <td class="wd12">수정일</td>
+            <td class="wd12">문의자</td>
+            <td class="wd12">답변자</td>
+            <td class="wd6">관리</td>
+          </tr>
+        </thead>
 
-      <tbody>
-        <tr
-          v-for="chat in chatrooms"
-          :key="chat.chatroomId"
-          @click="openChatHistoryModal(chat.chatroomId)"
-        >
-          <td>{{ chat.chatroomId }}</td>
-          <td>{{ chat.status }}</td>
-          <td>카테고리</td>
-          <td>{{ chat.credt }}</td>
-          <td>{{ chat.upddt }}</td>
-          <td>{{ chat.usr.nick }}</td>
-          <td>{{ chat.adm.nick }}</td>
-          <td>
-            <button @click.stop="openChatManageModal(chat.chatroomId)">
-              관리
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+        <tbody>
+          <tr
+            v-for="chat in chatrooms"
+            :key="chat.chatroomId"
+            @click="openChatHistoryModal(chat.chatroomId)"
+          >
+            <td>{{ chat.chatroomId }}</td>
+            <td>{{ chat.status }}</td>
+            <td>카테고리</td>
+            <td>{{ chat.credt }}</td>
+            <td>{{ chat.upddt }}</td>
+            <td>{{ chat.usr.nick }}</td>
+            <td>{{ chat.adm.nick }}</td>
+            <td>
+              <button @click.stop="openChatManageModal(chat.chatroomId)">
+                관리
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     <ChatHistoryModal
       v-model:modalValue="isChatHistoryModalVisible"
       :chatroomId="chatroomId"

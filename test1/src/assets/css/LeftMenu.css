@@ -2,7 +2,7 @@
   width: 300px !important;
   display: flex;
   background-color: #fff;
-  /* height: calc(100vh - 8.4rem); */
+  height: calc(100vh - 8.4rem);
   border-radius: 0 1.6rem 0 0;
   padding: 4rem 0;
   box-shadow: 0 0 4px #b6c1ff;
@@ -33,7 +33,7 @@
   background-color: var(--color-hover);
   color: var(--color-main);
 }
-.leftMenu ul li.on a {
+.leftMenu .on {
   background-color: transparent;
   color: var(--color-main);
   font-weight: 400;

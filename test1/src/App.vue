@@ -7,7 +7,7 @@
         <div v-else>
           <Header />
           <LeftMenu />
-          <Body />
+          <router-view />
         </div>
       </div>
     </div>
@@ -18,10 +18,10 @@
         <div v-else>
           <AdminHeader />
           <AdminLeftMenu />
+          <router-view />
         </div>
       </div>
     </div>
-    <router-view />
   </div>
 </template>
 

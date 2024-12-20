@@ -1,5 +1,5 @@
 <template>
-  <div v-if="visible" class="modal-overlay" @click.self="minimize">
+  <div v-show="visible" class="modal-overlay" @click.self="minimize">
     <div
       class="modal-content"
       ref="modalContent"
@@ -7,12 +7,14 @@
       @mouseup="stopDrag"
       @mousemove="drag"
     >
-      <button @click="minimize">최소화</button>
+      <button @click="minimize" style="padding: 1.6rem">최소화</button>
       <button class="modal-close" @click="close"></button>
       <slot></slot>
       <!-- 사용자한테만 보이는 안내창 -->
       <div v-show="role == 'USR'" class="userW">
-        <div class="userChatBox">사용자에게만 보여요</div>
+        <div class="userChatBox">
+          안녕하세요! 어떻게 도와드릴까요? &#x1F60A;
+        </div>
       </div>
       <!-- /사용자한테만 보이는 안내창 -->
 
@@ -23,7 +25,7 @@
       <!-- /메시지 -->
       <!-- 입력 -->
       <div class="inputMsg">
-        <input v-model="message" placeholder="메시지 작성.." />
+        <input v-model="message" @keydown="enter" placeholder="메시지 작성.." />
         <button @click="sendMessage" class="sendBtn">
           <img
             src="../../../../assets/images/send.svg"
@@ -62,6 +64,12 @@ export default {
     chatroomId: {
       type: String,
       default: "",
+    },
+  },
+  methods: {
+    // 부모창에서 부르는 용.. setup에 정의된건 부모창에서 인식못함
+    closeChatroom() {
+      this.sendWebSocket(this.makeSendBody("END"));
     },
   },
   setup(props, { emit }) {
@@ -125,12 +133,23 @@ export default {
 
       websocket.onopen = () => {
         console.log("WebSocket connection opened");
-        enterChatroom("ENTER");
+        // enter 해야되는 지 검사
+        axios
+          .post(`/api/chat/isNew`, {
+            id: userId.value,
+            chatroomId: chatroomId.value,
+          })
+          .then((res) => {
+            var isNew = res.data;
+            if (isNew) {
+              enterChatroom("ENTER");
+            }
+          });
       };
 
       websocket.onmessage = (event) => {
         let jsondata = JSON.parse(event.data);
-        console.log(jsondata);
+        //console.log(jsondata);
         let pushMsg = { nick: jsondata.nick, content: jsondata.content };
         messages.value.push(pushMsg);
       };
@@ -144,16 +163,24 @@ export default {
       };
     };
 
-    // 닫기
+    //엔터로 전송
+    const enter = () => {
+      var keyCode = window.event.keyCode;
+      if (keyCode == 13) {
+        sendMessage();
+      }
+    };
+
+    // 채팅창 닫기
     const close = () => {
       if (confirm("종료하시겠습니까?")) {
         sendWebSocket(makeSendBody("END"));
 
         chatroomId.value = "";
         messages.value = [];
-        websocket.close();
         emit("update:modelValue", false);
         emit("reset-chatroom-id");
+        websocket.close();
       }
     };
 
@@ -185,8 +212,6 @@ export default {
     watch(
       () => props.modelValue,
       (newValue) => {
-        console.log("watch : " + newValue);
-        console.log("and : " + chatroomId.value);
         visible.value = newValue;
         if (newValue) {
           if (websocket === null || websocket.readyState === WebSocket.CLOSED) {
@@ -203,6 +228,7 @@ export default {
       role,
       chatroomId,
       visible,
+      enter,
       close,
       modalContent,
       startDrag,
@@ -211,6 +237,7 @@ export default {
       websocket,
       message,
       messages,
+      makeSendBody,
       sendWebSocket,
       sendMessage,
       minimize,
