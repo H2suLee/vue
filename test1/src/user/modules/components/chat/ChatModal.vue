@@ -10,19 +10,14 @@
       <button @click="minimize" style="padding: 1.6rem">최소화</button>
       <button class="modal-close" @click="close"></button>
       <slot></slot>
-      <!-- 사용자한테만 보이는 안내창 -->
-      <div v-show="role == 'USR'" class="userW">
-        <div class="userChatBox">
-          안녕하세요! 어떻게 도와드릴까요? &#x1F60A;
+      <div class="userChatBox">
+        <!-- 메시지 -->
+        <div v-for="(msg, index) in messages" :key="index">
+          <p>{{ msg.nick }} : {{ msg.content }}</p>
         </div>
+        <!-- /메시지 -->
       </div>
-      <!-- /사용자한테만 보이는 안내창 -->
 
-      <!-- 메시지 -->
-      <div v-for="(msg, index) in messages" :key="index">
-        <p>{{ msg.nick }} : {{ msg.content }}</p>
-      </div>
-      <!-- /메시지 -->
       <!-- 입력 -->
       <div class="inputMsg">
         <input v-model="message" @keydown="enter" placeholder="메시지 작성.." />
@@ -117,6 +112,45 @@ export default {
       sendWebSocket(makeSendBody("ENTER"));
     };
 
+    const isNew = () => {
+      // enter 해야되는 지 검사
+      axios
+        .post(`/api/chat/isNew`, {
+          id: userId.value,
+          chatroomId: chatroomId.value,
+        })
+        .then((res) => {
+          var isNew = res.data;
+          if (isNew) {
+            if (role.value == "USR") {
+              showWelcomeMsg();
+            }
+            enterChatroom("ENTER");
+          }
+        });
+    };
+
+    const showWelcomeMsg = () => {
+      let pushMsg = {
+        nick: "TOYCHAT",
+        content: `안녕하세요! 어떻게 도와드릴까요? ${String.fromCodePoint(
+          0x1f60a
+        )}`,
+      };
+      messages.value.push(pushMsg);
+    };
+
+    const getLiveChat = () => {
+      // 이전 챗 불러오기
+      axios
+        .post(`/api/chat/liveChatList`, {
+          chatroomId: chatroomId.value,
+        })
+        .then((list) => {
+          messages.value = list.data;
+        });
+    };
+
     // 소켓 센드
     const sendWebSocket = (body) => {
       if (websocket.readyState === WebSocket.OPEN) {
@@ -133,18 +167,7 @@ export default {
 
       websocket.onopen = () => {
         console.log("WebSocket connection opened");
-        // enter 해야되는 지 검사
-        axios
-          .post(`/api/chat/isNew`, {
-            id: userId.value,
-            chatroomId: chatroomId.value,
-          })
-          .then((res) => {
-            var isNew = res.data;
-            if (isNew) {
-              enterChatroom("ENTER");
-            }
-          });
+        isNew();
       };
 
       websocket.onmessage = (event) => {
@@ -214,8 +237,10 @@ export default {
       (newValue) => {
         visible.value = newValue;
         if (newValue) {
+          getLiveChat();
           if (websocket === null || websocket.readyState === WebSocket.CLOSED) {
             openWebSocket();
+          } else {
           }
         }
       }

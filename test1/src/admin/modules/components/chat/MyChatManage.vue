@@ -25,7 +25,10 @@
         </thead>
         <tbody>
           <tr
-            v-for="chat in chatrooms"
+            v-for="chat in chatrooms?.slice(
+              pageStartIdx,
+              pageStartIdx + ITEM_PER_PAGE
+            )"
             :key="chat.chatroomId"
             @click="
               chat.status === '02'
@@ -42,6 +45,12 @@
           </tr>
         </tbody>
       </table>
+      <Pagination
+        v-if="chatrooms.length > 0"
+        :list="chatrooms"
+        v-bind="{ ITEM_PER_PAGE, PAGE_PER_SECTION }"
+        @change-page="onChangePage"
+      />
     </div>
     <ChatHistoryModal
       v-model:modalValue="isChatHistoryModalVisible"
@@ -59,13 +68,14 @@
 </template>
 
 <script>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import ChatHistoryModal from "../../../../user/modules/components/chat/ChatHistoryModal.vue";
 import ChatModal from "../../../../user/modules/components/chat/ChatModal.vue";
+import Pagination from "../../../../user/modules/components/common/Pagination.vue";
 
 export default {
-  components: { ChatHistoryModal, ChatModal },
+  components: { ChatHistoryModal, ChatModal, Pagination },
   setup() {
     const userId = ref(localStorage.getItem("adminId"));
     const nick = ref(localStorage.getItem("adminNick"));
@@ -75,13 +85,25 @@ export default {
     const isChatHistoryModalVisible = ref(false);
     const isModalVisible = ref(false);
 
+    /* 페이징 관련 */
+    const ITEM_PER_PAGE = ref(20);
+    const PAGE_PER_SECTION = ref(10);
+    let curPage = ref(1);
+
+    const pageStartIdx = computed(() => {
+      return (curPage.value - 1) * ITEM_PER_PAGE.value;
+    });
+
+    const onChangePage = (data) => {
+      curPage.value = data;
+    };
+
     // 채팅 리스트 가져오기 함수
     const getMyChatroomList = async () => {
       try {
         const response = await axios.post("/api/admin/chat/mylist", {
           id: userId.value,
         });
-        console.log("res", response.data);
         chatrooms.value = response.data;
       } catch (error) {
         console.error("Error fetching chat list:", error);
@@ -120,6 +142,10 @@ export default {
       openChatHistoryModal,
       openChatModal,
       resetChatroomId,
+      ITEM_PER_PAGE,
+      PAGE_PER_SECTION,
+      pageStartIdx,
+      onChangePage,
     };
   },
 };

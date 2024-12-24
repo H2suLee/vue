@@ -77,7 +77,6 @@ export default {
   components: { ChatModal },
   methods: {
     fn_kakaoLogout() {
-      console.log(this.$refs.chatModal);
       window.Kakao.Auth.logout((res) => {
         if (res) {
           localStorage.setItem("isAuthenticated", false);
