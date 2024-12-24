@@ -14,6 +14,12 @@ const routes = [
     component: () => import("../user/modules/components/chat/ChatList.vue"),
   },
   {
+    path: "/chat/paginationTest",
+    name: "PaginationTest",
+    component: () =>
+      import("../user/modules/components/common/PaginationSampleList.vue"),
+  },
+  {
     path: "/admin",
     name: "AdminHome",
     component: AdminHome,

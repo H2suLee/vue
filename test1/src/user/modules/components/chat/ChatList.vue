@@ -25,9 +25,16 @@
         </thead>
         <tbody>
           <tr
-            v-for="chat in chatrooms"
+            v-for="chat in chatrooms?.slice(
+              pageStartIdx,
+              pageStartIdx + ITEM_PER_PAGE
+            )"
             :key="chat.chatroomId"
-            @click="openChatHistoryModal(chat.chatroomId)"
+            @click="
+              chat.status === '02'
+                ? openChatModal(chat.chatroomId)
+                : openChatHistoryModal(chat.chatroomId)
+            "
           >
             <td>{{ chat.chatroomId }}</td>
             <td>{{ chat.credt }}</td>
@@ -38,35 +45,65 @@
           </tr>
         </tbody>
       </table>
+      <Pagination
+        v-if="chatrooms.length > 0"
+        :list="chatrooms"
+        v-bind="{ ITEM_PER_PAGE, PAGE_PER_SECTION }"
+        @change-page="onChangePage"
+      />
     </div>
     <ChatHistoryModal
       v-model:modalValue="isChatHistoryModalVisible"
       :chatroomId="chatroomId"
       @reset-chatroom-id="resetChatroomId"
     />
+    <ChatModal
+      v-model:modelValue="isModalVisible"
+      :userId="userId"
+      :nick="nick"
+      :role="role"
+      :chatroomId="chatroomId"
+    />
   </div>
 </template>
 
 <script>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import ChatHistoryModal from "./ChatHistoryModal.vue";
+import ChatModal from "./ChatModal.vue";
+import Pagination from "../common/Pagination.vue";
 
 export default {
-  components: { ChatHistoryModal },
+  components: { ChatHistoryModal, ChatModal, Pagination },
   setup() {
     const userId = ref(localStorage.getItem("id"));
     const nick = ref(localStorage.getItem("nick"));
+    const role = ref("USR");
     const chatrooms = ref([]);
     const chatroomId = ref("");
     const isChatHistoryModalVisible = ref(false);
+    const isModalVisible = ref(false);
+
+    /* 페이징 관련 */
+    const ITEM_PER_PAGE = ref(20);
+    const PAGE_PER_SECTION = ref(10);
+    let curPage = ref(1);
+
+    const pageStartIdx = computed(() => {
+      return (curPage.value - 1) * ITEM_PER_PAGE.value;
+    });
+
+    const onChangePage = (data) => {
+      curPage.value = data;
+    };
+
     // 채팅 리스트 가져오기 함수
     const getMyChatroomList = async () => {
       try {
         const response = await axios.post("/api/chat/chatroomList", {
           id: userId.value,
         });
-        console.log("res", response.data);
         chatrooms.value = response.data;
       } catch (error) {
         console.error("Error fetching chat list:", error);
@@ -77,6 +114,11 @@ export default {
     const openChatHistoryModal = (id) => {
       chatroomId.value = id;
       isChatHistoryModalVisible.value = true;
+    };
+
+    const openChatModal = (id) => {
+      chatroomId.value = id;
+      isModalVisible.value = true;
     };
 
     const resetChatroomId = () => {
@@ -91,11 +133,18 @@ export default {
     return {
       userId,
       nick,
+      role,
       chatrooms,
       chatroomId,
       isChatHistoryModalVisible,
+      isModalVisible,
       openChatHistoryModal,
+      openChatModal,
       resetChatroomId,
+      ITEM_PER_PAGE,
+      PAGE_PER_SECTION,
+      pageStartIdx,
+      onChangePage,
     };
   },
 };

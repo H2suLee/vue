@@ -16,7 +16,10 @@
         <!-- 내용, 날짜, 상태 -->
         <tbody>
           <tr
-            v-for="chat in chatrooms"
+            v-for="chat in chatrooms?.slice(
+              pageStartIdx,
+              pageStartIdx + ITEM_PER_PAGE
+            )"
             :key="chat.chatroomId"
             @click="openChatModal(chat._id)"
           >
@@ -27,6 +30,12 @@
           </tr>
         </tbody>
       </table>
+      <Pagination
+        v-if="chatrooms.length > 0"
+        :list="chatrooms"
+        v-bind="{ ITEM_PER_PAGE, PAGE_PER_SECTION }"
+        @change-page="onChangePage"
+      />
     </div>
     <ChatModal
       v-model:modelValue="isModalVisible"
@@ -39,12 +48,12 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, computed } from "vue";
 import axios from "axios";
 import ChatModal from "../../../../user/modules/components/chat/ChatModal.vue";
-
+import Pagination from "../../../../user/modules/components/common/Pagination.vue";
 export default {
-  components: { ChatModal },
+  components: { ChatModal, Pagination },
   setup() {
     const userId = ref(localStorage.getItem("adminId"));
     const nick = ref(localStorage.getItem("adminNick"));
@@ -53,6 +62,19 @@ export default {
     const chatroomId = ref("");
     const chatrooms = ref([]);
     let activeAdminChkSocket = null;
+
+    /* 페이징 관련 */
+    const ITEM_PER_PAGE = ref(20);
+    const PAGE_PER_SECTION = ref(10);
+    let curPage = ref(1);
+
+    const pageStartIdx = computed(() => {
+      return (curPage.value - 1) * ITEM_PER_PAGE.value;
+    });
+
+    const onChangePage = (data) => {
+      curPage.value = data;
+    };
 
     const openChatModal = (id) => {
       chatroomId.value = id;
@@ -69,7 +91,6 @@ export default {
         );
 
         chatrooms.value = response.data;
-        console.log("length: " + chatrooms.value.length);
       } catch (error) {
         console.error("Error fetching chat list:", error);
       }
@@ -128,6 +149,10 @@ export default {
       chatroomId,
       isModalVisible,
       openChatModal,
+      ITEM_PER_PAGE,
+      PAGE_PER_SECTION,
+      pageStartIdx,
+      onChangePage,
     };
   },
 };
