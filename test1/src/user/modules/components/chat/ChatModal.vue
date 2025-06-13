@@ -38,6 +38,9 @@
 <script>
 import { ref, watch, onMounted, computed } from "vue";
 import axios from "axios";
+import emitter from "@/eventBus";
+import { getCurrentDateTime } from "@/assets/js/common.js";
+
 export default {
   props: {
     modelValue: {
@@ -175,6 +178,13 @@ export default {
         //console.log(jsondata);
         let pushMsg = { nick: jsondata.nick, content: jsondata.content };
         messages.value.push(pushMsg);
+
+        // 부모 컴포넌트로 last message 를 전송
+        emitter.emit("last-message", {
+          chatroomId: chatroomId.value,
+          lastContent: jsondata.content,
+          lastCredt: getCurrentDateTime(),
+        });
       };
 
       websocket.onclose = () => {

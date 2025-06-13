@@ -49,9 +49,9 @@
 
 <script>
 import { ref, onMounted, onUnmounted, computed } from "vue";
-import axios from "axios";
+import axios from "@/axios.js";
 import ChatModal from "../../../../user/modules/components/chat/ChatModal.vue";
-import Pagination from "../../../../user/modules/components/common/Pagination.vue";
+import Pagination from "@/common/Pagination.vue";
 export default {
   components: { ChatModal, Pagination },
   setup() {
@@ -64,8 +64,8 @@ export default {
     let activeAdminChkSocket = null;
 
     /* 페이징 관련 */
-    const ITEM_PER_PAGE = ref(20);
-    const PAGE_PER_SECTION = ref(10);
+    const ITEM_PER_PAGE = ref(5);
+    const PAGE_PER_SECTION = ref(5);
     let curPage = ref(1);
 
     const pageStartIdx = computed(() => {
