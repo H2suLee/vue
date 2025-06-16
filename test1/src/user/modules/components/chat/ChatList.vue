@@ -68,11 +68,12 @@
 </template>
 
 <script>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, onBeforeUnmount } from "vue";
 import axios from "axios";
 import ChatHistoryModal from "./ChatHistoryModal.vue";
 import ChatModal from "./ChatModal.vue";
-import Pagination from "../common/Pagination.vue";
+import Pagination from "@/common/Pagination.vue";
+import emitter from "@/eventBus";
 
 export default {
   components: { ChatHistoryModal, ChatModal, Pagination },
@@ -110,6 +111,16 @@ export default {
       }
     };
 
+    // emitter를 통해 채팅방 별 last-message
+    const updateLastMessage = ({ chatroomId, lastContent, lastCredt }) => {
+      console.log("updateLastMessage>>");
+      const room = chatrooms.value.find((c) => c.chatroomId === chatroomId);
+      if (room) {
+        room.lastContent = lastContent;
+        room.lastCredt = lastCredt;
+      }
+    };
+
     // 채팅창 열기
     const openChatHistoryModal = (id) => {
       chatroomId.value = id;
@@ -128,8 +139,12 @@ export default {
     // mounted 훅에서 getMyChatroomList 호출
     onMounted(() => {
       getMyChatroomList();
+      emitter.on("last-message", updateLastMessage);
     });
 
+    onBeforeUnmount(() => {
+      emitter.off("last-message", updateLastMessage);
+    });
     return {
       userId,
       nick,

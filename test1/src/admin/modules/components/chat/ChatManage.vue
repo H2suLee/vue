@@ -73,9 +73,9 @@
 <script>
 import { ref, onMounted, computed } from "vue";
 import axios from "@/axios.js";
-import ChatHistoryModal from "../../../../user/modules/components/chat/ChatHistoryModal.vue";
+import ChatHistoryModal from "@/user/modules/components/chat/ChatHistoryModal.vue";
 import ChatManageModal from "./ChatManageModal.vue";
-import Pagination from "../../../../user/modules/components/common/Pagination.vue";
+import Pagination from "@/user/modules/components/common/Pagination.vue";
 
 export default {
   components: { ChatHistoryModal, ChatManageModal, Pagination },
@@ -88,8 +88,8 @@ export default {
     const isChatManageModalVisible = ref(false);
 
     /* 페이징 관련 */
-    const ITEM_PER_PAGE = ref(20);
-    const PAGE_PER_SECTION = ref(10);
+    const ITEM_PER_PAGE = ref(5);
+    const PAGE_PER_SECTION = ref(5);
     let curPage = ref(1);
 
     const pageStartIdx = computed(() => {
