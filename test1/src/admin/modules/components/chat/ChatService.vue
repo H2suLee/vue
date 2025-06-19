@@ -13,7 +13,17 @@
     <div v-else>
       <h1 class="dpn">실시간 채팅 지원</h1>
       <table class="tbl">
-        <!-- 내용, 날짜, 상태 -->
+        <thead>
+          <tr>
+            <td class="wd6">rId</td>
+            <td class="wd12">생성일</td>
+            <td class="wd10">답변자</td>
+            <td class="wd10">문의자</td>
+            <td>채팅</td>
+            <td class="wd12">마지막 채팅일</td>
+            <td class="wd10">상태(대기/진행중/완료)</td>
+          </tr>
+        </thead>
         <tbody>
           <tr
             v-for="chat in chatrooms?.slice(
@@ -21,12 +31,20 @@
               pageStartIdx + ITEM_PER_PAGE
             )"
             :key="chat.chatroomId"
-            @click="openChatModal(chat._id)"
+            @click="openChatModal(chat.chatroomId)"
           >
-            <td class="wd12">rid: {{ chat._id }}</td>
-            <td class="wd12">닉: {{ chat.participants[0].nick }}</td>
-            <td class="wd12">생성일: {{ chat.credt }}</td>
-            <td class="wd12">상태: {{ chat.status }}</td>
+            <td class="wd16">{{ chat.chatroomId }}</td>
+            <td class="wd12">{{ chat.credt }}</td>
+            <td class="wd10">{{ chat.adm?.nick || "" }}</td>
+            <td class="wd10">{{ chat.usr?.nick || "" }}</td>
+            <td>
+              {{ chat.lastContent }}
+              <p v-if="unreadCounts[chat.chatroomId] != null">
+                ( {{ unreadCounts[chat.chatroomId] }} )
+              </p>
+            </td>
+            <td class="wd12">{{ chat.lastCredt }}</td>
+            <td class="wd10">{{ chat.status }}</td>
           </tr>
         </tbody>
       </table>
@@ -43,6 +61,7 @@
       :nick="nick"
       :role="role"
       :chatroomId="chatroomId"
+      @refresh-list="getLiveChatWaitingList"
     />
   </div>
 </template>
@@ -52,6 +71,8 @@ import { ref, onMounted, onUnmounted, computed } from "vue";
 import axios from "@/axios.js";
 import ChatModal from "../../../../user/modules/components/chat/ChatModal.vue";
 import Pagination from "@/common/Pagination.vue";
+import { useChatStore } from "@/stores/chatStore";
+
 export default {
   components: { ChatModal, Pagination },
   setup() {
@@ -59,8 +80,10 @@ export default {
     const nick = ref(localStorage.getItem("adminNick"));
     const role = ref("ADM");
     const isModalVisible = ref(false);
+    const chatStore = useChatStore();
+    const chatrooms = computed(() => chatStore.chatList);
+    const unreadCounts = computed(() => chatStore.unreadCounts);
     const chatroomId = ref("");
-    const chatrooms = ref([]);
     let activeAdminChkSocket = null;
 
     /* 페이징 관련 */
@@ -91,6 +114,8 @@ export default {
         );
 
         chatrooms.value = response.data;
+        // pinia
+        chatStore.setChatList(response.data);
       } catch (error) {
         console.error("Error fetching chat list:", error);
       }
@@ -106,16 +131,19 @@ export default {
 
       activeAdminChkSocket.onmessage = (event) => {
         console.log("activeAdminChkSocket got message");
-        chatrooms.value = [];
+
+        // 아래 부분 왜 있는지 모르겠는데 없으면 화면 변화가 안생김
         let jsonArr = JSON.parse(event.data);
         jsonArr.forEach((item) => {
           let jsonObj = {
-            _id: item._id,
-            participants: item.participants,
+            chatroomId: item._id,
+            id: item.usr.id,
+            nick: item.usr.nick,
             credt: item.credt,
-            status: item.status,
+            content: item.usr.nick + "님이 입장하였습니다.",
           };
-          chatrooms.value.push(jsonObj);
+          // pinia로 상태관리 {chatroomId, content, credt, id, nick, type}
+          chatStore.handleIncomingMessage(jsonObj);
         });
       };
 
@@ -127,6 +155,7 @@ export default {
         console.error("activeAdminChkSocket error:", error);
       };
     };
+
     onMounted(() => {
       // 웹소켓 연결
       openActiveAdminChkSocket();
@@ -146,6 +175,7 @@ export default {
       nick,
       role,
       chatrooms,
+      unreadCounts,
       chatroomId,
       isModalVisible,
       openChatModal,
@@ -153,6 +183,7 @@ export default {
       PAGE_PER_SECTION,
       pageStartIdx,
       onChangePage,
+      getLiveChatWaitingList,
     };
   },
 };

@@ -37,7 +37,7 @@ export default {
       localStorage.removeItem("jwt");
       localStorage.removeItem("adminId");
       localStorage.removeItem("adminNick");
-      router.go("/admin");
+      router.push("/admin");
     };
 
     // fcm

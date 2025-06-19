@@ -12,16 +12,15 @@
     <div>
       <h1 class="dpn">채팅 관리</h1>
       <table class="tbl">
-        <!-- 카테고리, 상태(진행중/완료), 채팅방 생성일, 마지막 수정,일 문의자, 관리-->
         <thead>
           <tr>
-            <td class="wd6">roomId</td>
-            <td class="wd12">상태(진행중/완료)</td>
-            <td class="wd12">카테고리</td>
+            <td class="wd6">rId</td>
+            <!-- <td class="wd12">상태(진행중/완료)</td> -->
             <td class="wd12">생성일</td>
-            <td class="wd12">수정일</td>
-            <td class="wd12">문의자</td>
-            <td class="wd12">답변자</td>
+            <td class="wd10">답변자</td>
+            <td class="wd10">문의자</td>
+            <td class="wd12">마지막 채팅일</td>
+            <td class="wd12">카테고리</td>
             <td class="wd6">관리</td>
           </tr>
         </thead>
@@ -36,12 +35,12 @@
             @click="openChatHistoryModal(chat.chatroomId)"
           >
             <td>{{ chat.chatroomId }}</td>
-            <td>{{ chat.status }}</td>
-            <td>카테고리</td>
+            <!-- <td>{{ chat.status }}</td> -->
             <td>{{ chat.credt }}</td>
-            <td>{{ chat.upddt }}</td>
-            <td>{{ chat.usr.nick }}</td>
             <td>{{ chat.adm.nick }}</td>
+            <td>{{ chat.usr.nick }}</td>
+            <td>{{ chat.upddt }}</td>
+            <td>카테고리</td>
             <td>
               <button @click.stop="openChatManageModal(chat.chatroomId)">
                 관리
@@ -75,7 +74,7 @@ import { ref, onMounted, computed } from "vue";
 import axios from "@/axios.js";
 import ChatHistoryModal from "@/user/modules/components/chat/ChatHistoryModal.vue";
 import ChatManageModal from "./ChatManageModal.vue";
-import Pagination from "@/user/modules/components/common/Pagination.vue";
+import Pagination from "@/common/Pagination.vue";
 
 export default {
   components: { ChatHistoryModal, ChatManageModal, Pagination },

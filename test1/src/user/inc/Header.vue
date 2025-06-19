@@ -68,10 +68,11 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted, watch } from "vue";
+import { ref, onMounted, onUnmounted, onBeforeUnmount, watch } from "vue";
 import { useRouter } from "vue-router";
 import ChatModal from "../modules/components/chat/ChatModal.vue";
 import axios from "axios";
+import emitter from "@/eventBus";
 
 export default {
   components: { ChatModal },
@@ -82,8 +83,8 @@ export default {
           localStorage.setItem("isAuthenticated", false);
           localStorage.setItem("id", "");
           localStorage.setItem("nick", "");
-          this.$refs.chatModal.closeChatroom();
-          this.router.go("/");
+          //this.$refs.chatModal.closeChatroom(); //<< 왜 오류?
+          this.router.push("/");
         }
       });
     },
@@ -101,6 +102,7 @@ export default {
 
     const resetChatroomId = () => {
       chatroomId.value = "";
+      console.log("header에서 emit 받음");
     };
     const openChatModal = () => {
       // 채팅방 아이디
@@ -148,6 +150,7 @@ export default {
     onMounted(() => {
       // 웹소켓 연결
       openActiveAdminChkSocket();
+      emitter.on("reset-chatroom-id", resetChatroomId);
     });
 
     // 다른 페이지로 이동시 웹소켓 close
@@ -155,6 +158,10 @@ export default {
       if (activeAdminChkSocket) {
         activeAdminChkSocket.close();
       }
+    });
+
+    onBeforeUnmount(() => {
+      emitter.off("reset-chatroom-id", resetChatroomId);
     });
 
     watch(chatroomId, (newValue) => {

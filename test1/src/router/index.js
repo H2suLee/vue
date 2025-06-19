@@ -16,8 +16,7 @@ const routes = [
   {
     path: "/chat/paginationTest",
     name: "PaginationTest",
-    component: () =>
-      import("../user/modules/components/common/PaginationSampleList.vue"),
+    component: () => import("../common/PaginationSampleList.vue"),
   },
   {
     path: "/admin",

@@ -31,15 +31,20 @@
             )"
             :key="chat.chatroomId"
             @click="
-              chat.status === '02'
-                ? openChatModal(chat.chatroomId)
-                : openChatHistoryModal(chat.chatroomId)
+              chat.status === '03'
+                ? openChatHistoryModal(chat.chatroomId)
+                : openChatModal(chat.chatroomId)
             "
           >
             <td>{{ chat.chatroomId }}</td>
             <td>{{ chat.credt }}</td>
-            <td>{{ chat.adm.nick }}</td>
-            <td>{{ chat.lastContent }}</td>
+            <td>{{ chat.adm?.nick || "" }}</td>
+            <td>
+              {{ chat.lastContent }}
+              <p v-if="unreadCounts[chat.chatroomId] != null">
+                ( {{ unreadCounts[chat.chatroomId] }} )
+              </p>
+            </td>
             <td>{{ chat.lastCredt }}</td>
             <td>{{ chat.status }}</td>
           </tr>
@@ -55,7 +60,6 @@
     <ChatHistoryModal
       v-model:modalValue="isChatHistoryModalVisible"
       :chatroomId="chatroomId"
-      @reset-chatroom-id="resetChatroomId"
     />
     <ChatModal
       v-model:modelValue="isModalVisible"
@@ -63,17 +67,18 @@
       :nick="nick"
       :role="role"
       :chatroomId="chatroomId"
+      @refresh-list="getMyChatroomList"
     />
   </div>
 </template>
 
 <script>
-import { ref, onMounted, computed, onBeforeUnmount } from "vue";
+import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import ChatHistoryModal from "./ChatHistoryModal.vue";
 import ChatModal from "./ChatModal.vue";
 import Pagination from "@/common/Pagination.vue";
-import emitter from "@/eventBus";
+import { useChatStore } from "@/stores/chatStore";
 
 export default {
   components: { ChatHistoryModal, ChatModal, Pagination },
@@ -81,7 +86,9 @@ export default {
     const userId = ref(localStorage.getItem("id"));
     const nick = ref(localStorage.getItem("nick"));
     const role = ref("USR");
-    const chatrooms = ref([]);
+    const chatStore = useChatStore();
+    const chatrooms = computed(() => chatStore.chatList);
+    const unreadCounts = computed(() => chatStore.unreadCounts);
     const chatroomId = ref("");
     const isChatHistoryModalVisible = ref(false);
     const isModalVisible = ref(false);
@@ -106,18 +113,10 @@ export default {
           id: userId.value,
         });
         chatrooms.value = response.data;
+        // pinia
+        chatStore.setChatList(response.data);
       } catch (error) {
         console.error("Error fetching chat list:", error);
-      }
-    };
-
-    // emitter를 통해 채팅방 별 last-message
-    const updateLastMessage = ({ chatroomId, lastContent, lastCredt }) => {
-      console.log("updateLastMessage>>");
-      const room = chatrooms.value.find((c) => c.chatroomId === chatroomId);
-      if (room) {
-        room.lastContent = lastContent;
-        room.lastCredt = lastCredt;
       }
     };
 
@@ -132,34 +131,27 @@ export default {
       isModalVisible.value = true;
     };
 
-    const resetChatroomId = () => {
-      chatroomId.value = "";
-    };
-
-    // mounted 훅에서 getMyChatroomList 호출
     onMounted(() => {
       getMyChatroomList();
-      emitter.on("last-message", updateLastMessage);
     });
 
-    onBeforeUnmount(() => {
-      emitter.off("last-message", updateLastMessage);
-    });
     return {
       userId,
       nick,
       role,
       chatrooms,
+      unreadCounts,
       chatroomId,
       isChatHistoryModalVisible,
       isModalVisible,
       openChatHistoryModal,
       openChatModal,
-      resetChatroomId,
+      /*resetChatroomId,*/
       ITEM_PER_PAGE,
       PAGE_PER_SECTION,
       pageStartIdx,
       onChangePage,
+      getMyChatroomList,
     };
   },
 };

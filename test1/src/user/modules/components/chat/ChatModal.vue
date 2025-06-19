@@ -40,6 +40,7 @@ import { ref, watch, onMounted, computed } from "vue";
 import axios from "axios";
 import emitter from "@/eventBus";
 import { getCurrentDateTime } from "@/assets/js/common.js";
+import { useChatStore } from "@/stores/chatStore";
 
 export default {
   props: {
@@ -65,9 +66,9 @@ export default {
     },
   },
   methods: {
-    // 부모창에서 부르는 용.. setup에 정의된건 부모창에서 인식못함
+    // 헤더에서 로그아웃할떄.. setup에 정의된건 부모창에서 인식못함
     closeChatroom() {
-      this.sendWebSocket(this.makeSendBody("END"));
+      closeProcess();
     },
   },
   setup(props, { emit }) {
@@ -85,6 +86,7 @@ export default {
     const message = ref("");
     let messages = ref([]);
     let websocket = null;
+    const chatStore = useChatStore();
 
     // 채팅 바디 생성
     const makeSendBody = (type) => {
@@ -175,16 +177,22 @@ export default {
 
       websocket.onmessage = (event) => {
         let jsondata = JSON.parse(event.data);
-        //console.log(jsondata);
-        let pushMsg = { nick: jsondata.nick, content: jsondata.content };
-        messages.value.push(pushMsg);
+        messages.value.push({ nick: jsondata.nick, content: jsondata.content });
 
-        // 부모 컴포넌트로 last message 를 전송
+        // 해당 채팅룸이 있는 list로 last message 를 전송
+        /*
         emitter.emit("last-message", {
           chatroomId: chatroomId.value,
           lastContent: jsondata.content,
           lastCredt: getCurrentDateTime(),
         });
+        */
+
+        // 모든 list 갱신
+        //emitter.emit("refresh-list");
+
+        // pinia로 상태관리 {chatroomId, content, credt, id, nick, type}
+        chatStore.handleIncomingMessage(jsondata);
       };
 
       websocket.onclose = () => {
@@ -207,14 +215,17 @@ export default {
     // 채팅창 닫기
     const close = () => {
       if (confirm("종료하시겠습니까?")) {
-        sendWebSocket(makeSendBody("END"));
-
-        chatroomId.value = "";
-        messages.value = [];
-        emit("update:modelValue", false);
-        emit("reset-chatroom-id");
-        websocket.close();
+        closeProcess();
       }
+    };
+
+    const closeProcess = () => {
+      sendWebSocket(makeSendBody("END"));
+      chatroomId.value = "";
+      messages.value = [];
+      emit("update:modelValue", false);
+      emitter.emit("reset-chatroom-id");
+      websocket.close();
     };
 
     // 최소화
@@ -276,6 +287,7 @@ export default {
       sendWebSocket,
       sendMessage,
       minimize,
+      closeProcess,
     };
   },
 };
