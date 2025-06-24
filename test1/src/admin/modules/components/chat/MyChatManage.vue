@@ -68,7 +68,6 @@
       :nick="nick"
       :role="role"
       :chatroomId="chatroomId"
-      @refresh-list="getMyChatroomList"
     />
   </div>
 </template>
@@ -80,6 +79,7 @@ import ChatHistoryModal from "../../../../user/modules/components/chat/ChatHisto
 import ChatModal from "../../../../user/modules/components/chat/ChatModal.vue";
 import Pagination from "@/common/Pagination.vue";
 import { useChatStore } from "@/stores/chatStore";
+import { sendWebSocket, getWebSocket } from "@/common/WebsocketManager";
 
 export default {
   components: { ChatHistoryModal, ChatModal, Pagination },
@@ -112,7 +112,7 @@ export default {
         const response = await axios.post("/api/admin/chat/mylist", {
           id: userId.value,
         });
-        chatrooms.value = response.data;
+        //chatrooms.value = response.data;
         // pinia
         chatStore.setChatList(response.data);
       } catch (error) {
@@ -130,23 +130,42 @@ export default {
     const openChatModal = (id) => {
       chatroomId.value = id;
       isModalVisible.value = true;
+      chatStore.markAsRead(id);
     };
 
     const resetChatroomId = () => {
       chatroomId.value = "";
     };
 
-    // mounted 훅에서 getMyChatroomList 호출
-    onMounted(() => {
-      getMyChatroomList();
-      //emitter.on("refresh-list", getMyChatroomList);
-    });
+    function waitWebSocketOpen(socket) {
+      return new Promise((resolve) => {
+        if (socket.readyState === WebSocket.OPEN) {
+          resolve();
+        } else {
+          socket.addEventListener("open", resolve, { once: true });
+        }
+      });
+    }
 
-    /*
-    onBeforeUnmount(() => {
-      emitter.off("refresh-list", getMyChatroomList);
+    onMounted(async () => {
+      // 리스트 최신화
+      await getMyChatroomList();
+      // 채팅방 복구
+      const socket = getWebSocket();
+      await waitWebSocketOpen(socket);
+
+      const rids = chatStore.chatList
+        .filter((r) => r.status === "02")
+        .map((r) => r.chatroomId);
+
+      rids.forEach((rid) => {
+        const sendBody = {
+          chatroomId: rid,
+          type: "REJOIN",
+        };
+        sendWebSocket(sendBody);
+      });
     });
-      */
 
     return {
       userId,
@@ -164,7 +183,6 @@ export default {
       PAGE_PER_SECTION,
       pageStartIdx,
       onChangePage,
-      getMyChatroomList,
     };
   },
 };

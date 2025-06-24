@@ -41,6 +41,7 @@ import axios from "axios";
 import emitter from "@/eventBus";
 import { getCurrentDateTime } from "@/assets/js/common.js";
 import { useChatStore } from "@/stores/chatStore";
+import { sendWebSocket } from "@/common/WebsocketManager";
 
 export default {
   props: {
@@ -85,7 +86,7 @@ export default {
     let initialTop = 0;
     const message = ref("");
     let messages = ref([]);
-    let websocket = null;
+    // let websocket = null; //*주석
     const chatStore = useChatStore();
 
     // 채팅 바디 생성
@@ -157,6 +158,8 @@ export default {
     };
 
     // 소켓 센드
+    /**
+     * 
     const sendWebSocket = (body) => {
       if (websocket.readyState === WebSocket.OPEN) {
         // 웹소켓이 연결된 상태라면 메시지 전송
@@ -165,6 +168,7 @@ export default {
         console.error("WebSocket is not open");
       }
     };
+        */ //*주석
 
     // 소켓 오픈
     const openWebSocket = () => {
@@ -172,12 +176,12 @@ export default {
 
       websocket.onopen = () => {
         console.log("WebSocket connection opened");
-        isNew();
+        isNew(); //*이거우짜지
       };
 
       websocket.onmessage = (event) => {
         let jsondata = JSON.parse(event.data);
-        messages.value.push({ nick: jsondata.nick, content: jsondata.content });
+        messages.value.push({ nick: jsondata.nick, content: jsondata.content }); //*이거우짜지
 
         // 해당 채팅룸이 있는 list로 last message 를 전송
         /*
@@ -225,7 +229,7 @@ export default {
       messages.value = [];
       emit("update:modelValue", false);
       emitter.emit("reset-chatroom-id");
-      websocket.close();
+      //websocket.close(); //*주석
     };
 
     // 최소화
@@ -259,10 +263,13 @@ export default {
         visible.value = newValue;
         if (newValue) {
           getLiveChat();
+          isNew();
+          /*
           if (websocket === null || websocket.readyState === WebSocket.CLOSED) {
-            openWebSocket();
+            //openWebSocket(); //*주석
           } else {
           }
+            */
         }
       }
     );
@@ -280,11 +287,11 @@ export default {
       startDrag,
       stopDrag,
       drag,
-      websocket,
+      //websocket,
       message,
       messages,
       makeSendBody,
-      sendWebSocket,
+      //sendWebSocket,
       sendMessage,
       minimize,
       closeProcess,

@@ -4,6 +4,7 @@ import router from "./router";
 import axios from "axios";
 import { createPinia } from "pinia";
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
+import { initWebsocket } from "@/common/WebsocketManager";
 
 const app = createApp(App).use(router);
 const pinia = createPinia();
@@ -13,3 +14,5 @@ pinia.use(piniaPluginPersistedstate);
 app.config.globalProperties.$axios = axios;
 app.use(pinia);
 app.mount("#app");
+
+initWebsocket();

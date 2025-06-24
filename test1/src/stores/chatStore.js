@@ -25,22 +25,31 @@ export const useChatStore = defineStore("chat", {
 
       if (existing) {
         // 갱신 가능 항목: lastContent, lastCredt, status, adm
-        existing.lastContent = message.content;
-        existing.lastCredt = message.credt;
-        var status = "";
-        if (existing.adm) {
-          status = "02";
-        } else {
-          status = "01";
-        }
-        if (message.type == "END") {
-          status = "03";
-        }
-        existing.status = status;
+
+        var pushMsg = {
+          ...existing,
+          lastContent: message.content,
+          lastCredt: message.credt,
+          status: message.type === "END" ? "03" : existing.adm ? "02" : "01",
+        };
+        /*
+existing.lastContent = message.content;
+existing.lastCredt = message.credt;
+var status = "";
+if (existing.adm) {
+  status = "02";
+} else {
+  status = "01";
+}
+if (message.type == "END") {
+  status = "03";
+}
+existing.status = status;
+*/
 
         // 맨 위로 이동(기존항목을 찾아서 제거)
         this.chatList = [
-          existing,
+          pushMsg,
           ...this.chatList.filter((c) => c.chatroomId !== message.chatroomId),
         ];
       } else {
@@ -61,8 +70,9 @@ export const useChatStore = defineStore("chat", {
         (this.unreadCounts[message.chatroomId] || 0) + 1;
     },
 
-    markAsRead(chatRoomId) {
-      this.unreadCounts[chatRoomId] = 0;
+    markAsRead(chatroomId) {
+      console.log("markAsRead : " + chatroomId);
+      this.unreadCounts[chatroomId] = 0;
     },
 
     setChatList(chatListFromApi) {

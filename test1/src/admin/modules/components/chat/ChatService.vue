@@ -61,17 +61,17 @@
       :nick="nick"
       :role="role"
       :chatroomId="chatroomId"
-      @refresh-list="getLiveChatWaitingList"
     />
   </div>
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted, computed } from "vue";
+import { ref, onMounted, onUnmounted, computed, watch } from "vue";
 import axios from "@/axios.js";
 import ChatModal from "../../../../user/modules/components/chat/ChatModal.vue";
 import Pagination from "@/common/Pagination.vue";
 import { useChatStore } from "@/stores/chatStore";
+import { sendWebSocket, getWebSocket } from "@/common/WebsocketManager";
 
 export default {
   components: { ChatModal, Pagination },
@@ -102,6 +102,7 @@ export default {
     const openChatModal = (id) => {
       chatroomId.value = id;
       isModalVisible.value = true;
+      chatStore.markAsRead(id);
     };
 
     const getLiveChatWaitingList = async () => {
@@ -112,8 +113,7 @@ export default {
             //id: userId.value,
           }
         );
-
-        chatrooms.value = response.data;
+        //chatrooms.value = response.data;
         // pinia
         chatStore.setChatList(response.data);
       } catch (error) {
@@ -156,11 +156,36 @@ export default {
       };
     };
 
-    onMounted(() => {
+    function waitWebSocketOpen(socket) {
+      return new Promise((resolve) => {
+        if (socket.readyState === WebSocket.OPEN) {
+          resolve();
+        } else {
+          socket.addEventListener("open", resolve, { once: true });
+        }
+      });
+    }
+
+    onMounted(async () => {
       // 웹소켓 연결
       openActiveAdminChkSocket();
+
       // 실시간 상담 대기 리스트
-      getLiveChatWaitingList();
+      await getLiveChatWaitingList();
+
+      // 채팅방 복구
+      const socket = getWebSocket();
+      await waitWebSocketOpen(socket);
+
+      const rids = chatStore.chatList.map((r) => r.chatroomId);
+
+      rids.forEach((rid) => {
+        const sendBody = {
+          chatroomId: rid,
+          type: "REJOIN",
+        };
+        sendWebSocket(sendBody);
+      });
     });
 
     // 다른 페이지로 이동시 웹소켓 close
@@ -183,7 +208,6 @@ export default {
       PAGE_PER_SECTION,
       pageStartIdx,
       onChangePage,
-      getLiveChatWaitingList,
     };
   },
 };
