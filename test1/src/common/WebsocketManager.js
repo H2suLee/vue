@@ -1,6 +1,7 @@
 import { useChatStore } from "@/stores/chatStore";
 
 let socket = null;
+const subscribers = new Set();
 
 export function initWebsocket() {
   if (socket) return;
@@ -12,20 +13,19 @@ export function initWebsocket() {
   };
 
   socket.onmessage = (event) => {
-    console.log("전역 got msg");
-    const data = JSON.parse(event.data);
+    let jsondata = JSON.parse(event.data);
     const chatStore = useChatStore();
-    chatStore.handleIncomingMessage(data);
+    chatStore.handleIncomingMessage(jsondata);
+    subscribers.forEach((callback) => callback(jsondata));
   };
-
   socket.onclose = () => {
-    console.warn("WebSocket closed. Reconnecting in 3s...");
+    console.warn("전역 WebSocket closed. Reconnecting in 3s...");
     socket = null;
-    setTimeout(initSocket, 3000);
+    setTimeout(initWebsocket, 3000);
   };
 
   socket.onerror = (e) => {
-    console.error("WebSocket error", e);
+    console.error("전역 WebSocket error", e);
   };
 }
 
@@ -39,4 +39,12 @@ export function sendWebSocket(message) {
     console.log("전역 action");
     socket.send(JSON.stringify(message));
   }
+}
+
+export function subscribeToMessages(callback) {
+  subscribers.add(callback);
+}
+
+export function unsubscribeFromMessages(callback) {
+  subscribers.delete(callback);
 }

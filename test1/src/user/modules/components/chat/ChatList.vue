@@ -38,7 +38,13 @@
           >
             <td>{{ chat.chatroomId }}</td>
             <td>{{ chat.credt }}</td>
-            <td>{{ chat.adm?.nick || "" }}</td>
+            <td class="wd10">
+              {{
+                Array.isArray(chat.adm)
+                  ? chat.adm.map((a) => a.nick).join(", ")
+                  : ""
+              }}
+            </td>
             <td>
               {{ chat.lastContent }}
               <p v-if="unreadCounts[chat.chatroomId] != null">

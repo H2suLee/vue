@@ -37,9 +37,15 @@
             <td>{{ chat.chatroomId }}</td>
             <!-- <td>{{ chat.status }}</td> -->
             <td>{{ chat.credt }}</td>
-            <td>{{ chat.adm.nick }}</td>
-            <td>{{ chat.usr.nick }}</td>
-            <td>{{ chat.upddt }}</td>
+            <td class="wd10">
+              {{
+                Array.isArray(chat.adm)
+                  ? chat.adm.map((a) => a.nick).join(", ")
+                  : ""
+              }}
+            </td>
+            <td class="wd10">{{ chat.usr?.nick || "" }}</td>
+            <td>{{ chat.lastCredt }}</td>
             <td>카테고리</td>
             <td>
               <button @click.stop="openChatManageModal(chat.chatroomId)">

@@ -36,12 +36,15 @@
 </template>
 
 <script>
-import { ref, watch, onMounted, computed } from "vue";
+import { ref, watch, computed, onMounted, onUnmounted } from "vue";
 import axios from "axios";
 import emitter from "@/eventBus";
 import { getCurrentDateTime } from "@/assets/js/common.js";
-import { useChatStore } from "@/stores/chatStore";
-import { sendWebSocket } from "@/common/WebsocketManager";
+import {
+  sendWebSocket,
+  subscribeToMessages,
+  unsubscribeFromMessages,
+} from "@/common/WebsocketManager";
 
 export default {
   props: {
@@ -76,19 +79,24 @@ export default {
     const userId = computed(() => props.userId);
     const nick = computed(() => props.nick);
     const role = computed(() => props.role);
-    let chatroomId = computed(() => props.chatroomId);
+    const chatroomId = computed(() => props.chatroomId);
     const visible = ref(props.modelValue);
     const modalContent = ref(null);
-    let isDragging = ref(false);
+    const isDragging = ref(false);
     let startX = 0;
     let startY = 0;
     let initialLeft = 0;
     let initialTop = 0;
     const message = ref("");
-    let messages = ref([]);
-    // let websocket = null; //*주석
-    const chatStore = useChatStore();
+    const messages = ref([]);
 
+    function handleIncomingMessage(data) {
+      const pushMsg = {
+        nick: data.nick,
+        content: data.content,
+      };
+      messages.value.push(pushMsg);
+    }
     // 채팅 바디 생성
     const makeSendBody = (type) => {
       let content =
@@ -103,6 +111,7 @@ export default {
         nick: nick.value,
         content: content,
         type: type,
+        role: role.value,
       };
       return sendBody;
     };
@@ -155,57 +164,6 @@ export default {
         .then((list) => {
           messages.value = list.data;
         });
-    };
-
-    // 소켓 센드
-    /**
-     * 
-    const sendWebSocket = (body) => {
-      if (websocket.readyState === WebSocket.OPEN) {
-        // 웹소켓이 연결된 상태라면 메시지 전송
-        websocket.send(JSON.stringify(body));
-      } else {
-        console.error("WebSocket is not open");
-      }
-    };
-        */ //*주석
-
-    // 소켓 오픈
-    const openWebSocket = () => {
-      websocket = new WebSocket("ws://localhost:9090/ws/chat");
-
-      websocket.onopen = () => {
-        console.log("WebSocket connection opened");
-        isNew(); //*이거우짜지
-      };
-
-      websocket.onmessage = (event) => {
-        let jsondata = JSON.parse(event.data);
-        messages.value.push({ nick: jsondata.nick, content: jsondata.content }); //*이거우짜지
-
-        // 해당 채팅룸이 있는 list로 last message 를 전송
-        /*
-        emitter.emit("last-message", {
-          chatroomId: chatroomId.value,
-          lastContent: jsondata.content,
-          lastCredt: getCurrentDateTime(),
-        });
-        */
-
-        // 모든 list 갱신
-        //emitter.emit("refresh-list");
-
-        // pinia로 상태관리 {chatroomId, content, credt, id, nick, type}
-        chatStore.handleIncomingMessage(jsondata);
-      };
-
-      websocket.onclose = () => {
-        console.log("WebSocket connection closed");
-      };
-
-      websocket.onerror = (error) => {
-        console.error("WebSocket error: ", error);
-      };
     };
 
     //엔터로 전송
@@ -264,16 +222,17 @@ export default {
         if (newValue) {
           getLiveChat();
           isNew();
-          /*
-          if (websocket === null || websocket.readyState === WebSocket.CLOSED) {
-            //openWebSocket(); //*주석
-          } else {
-          }
-            */
         }
       }
     );
-    onMounted(() => {});
+
+    onMounted(() => {
+      subscribeToMessages(handleIncomingMessage);
+    });
+
+    onUnmounted(() => {
+      unsubscribeFromMessages(handleIncomingMessage);
+    });
 
     return {
       userId,
@@ -287,11 +246,9 @@ export default {
       startDrag,
       stopDrag,
       drag,
-      //websocket,
       message,
       messages,
       makeSendBody,
-      //sendWebSocket,
       sendMessage,
       minimize,
       closeProcess,

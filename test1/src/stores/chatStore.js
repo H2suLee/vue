@@ -16,7 +16,8 @@ export const useChatStore = defineStore("chat", {
             "nick": "admin8",
             "content": "admin8님이 입장하였습니다.",
             "credt": "2025-06-18 16:44:54",
-            "type": "ENTER"
+            "type": "ENTER",
+            "role": "ADM"
         }
         */
       const existing = this.chatList.find(
@@ -32,20 +33,10 @@ export const useChatStore = defineStore("chat", {
           lastCredt: message.credt,
           status: message.type === "END" ? "03" : existing.adm ? "02" : "01",
         };
-        /*
-existing.lastContent = message.content;
-existing.lastCredt = message.credt;
-var status = "";
-if (existing.adm) {
-  status = "02";
-} else {
-  status = "01";
-}
-if (message.type == "END") {
-  status = "03";
-}
-existing.status = status;
-*/
+
+        if (message.type === "ENTER" && message.role === "ADM") {
+          pushMsg.adm.push({ nick: message.nick });
+        }
 
         // 맨 위로 이동(기존항목을 찾아서 제거)
         this.chatList = [
@@ -58,6 +49,7 @@ existing.status = status;
           chatroomId: message.chatroomId,
           credt: message.credt,
           usr: { id: message.id, nick: message.nick },
+          adm: [],
           lastContent: message.content,
           lastCredt: message.credt,
           status: "01",

@@ -7,7 +7,7 @@
           <img
             src="../../assets/images/chatlist.svg"
             alt="채팅 이력 아이콘"
-          />채팅관리
+          />완료채팅관리
         </router-link>
       </li>
       <li>

@@ -35,7 +35,13 @@
           >
             <td class="wd16">{{ chat.chatroomId }}</td>
             <td class="wd12">{{ chat.credt }}</td>
-            <td class="wd10">{{ chat.adm?.nick || "" }}</td>
+            <td class="wd10">
+              {{
+                Array.isArray(chat.adm)
+                  ? chat.adm.map((a) => a.nick).join(", ")
+                  : ""
+              }}
+            </td>
             <td class="wd10">{{ chat.usr?.nick || "" }}</td>
             <td>
               {{ chat.lastContent }}
