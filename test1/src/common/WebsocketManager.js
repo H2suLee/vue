@@ -15,13 +15,15 @@ export function initWebsocket() {
   socket.onmessage = (event) => {
     let jsondata = JSON.parse(event.data);
     const chatStore = useChatStore();
-    chatStore.handleIncomingMessage(jsondata);
+    if (jsondata.type != "TYPING" && jsondata.type != "STOP") {
+      chatStore.handleIncomingMessage(jsondata);
+    }
     subscribers.forEach((callback) => callback(jsondata));
   };
   socket.onclose = () => {
     console.warn("전역 WebSocket closed. Reconnecting in 3s...");
     socket = null;
-    setTimeout(initWebsocket, 3000);
+    setTimeout(initWebsocket, 1000);
   };
 
   socket.onerror = (e) => {
@@ -34,9 +36,7 @@ export function getWebSocket() {
 }
 
 export function sendWebSocket(message) {
-  console.log("전역 send");
   if (socket && socket.readyState === WebSocket.OPEN) {
-    console.log("전역 action");
     socket.send(JSON.stringify(message));
   }
 }

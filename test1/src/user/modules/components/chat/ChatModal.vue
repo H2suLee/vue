@@ -19,6 +19,15 @@
         </div>
         <!-- /메시지 -->
       </div>
+      <!-- 작성중입니다 -->
+      <div v-if="typingUsers.length > 0">
+        <p>
+          <span v-for="(nick, index) in typingUsers" :key="index">
+            {{ index > 0 ? "," : "" }} {{ nick }}
+          </span>
+          님이 작성중입니다...
+        </p>
+      </div>
 
       <!-- 입력 -->
       <div class="inputMsg">
@@ -95,14 +104,45 @@ export default {
     let initialTop = 0;
     const message = ref("");
     const messages = ref([]);
-
+    let typingTimeout = null;
+    const typingUsers = ref([]);
+    const excludedKeys = [
+      "Shift",
+      "Control",
+      "Alt",
+      "CapsLock",
+      "Escape",
+      "PageUp",
+      "PageDown",
+      "End",
+      "Home",
+      "ArrowLeft",
+      "ArrowUp",
+      "ArrowRight",
+      "ArrowDown",
+      "Insert",
+      "Delete",
+      "Meta",
+      "Tab",
+    ];
     function handleIncomingMessage(data) {
-      const pushMsg = {
-        id: data.id,
-        nick: data.nick,
-        content: data.content,
-      };
-      messages.value.push(pushMsg);
+      const type = data.type;
+      if (type == "TYPING") {
+        if (!typingUsers.value.includes(data.nick) && data.nick != nick.value) {
+          typingUsers.value.push(data.nick);
+        }
+      } else if (type == "STOP") {
+        typingUsers.value = typingUsers.value.filter(
+          (user) => user !== data.nick
+        );
+      } else {
+        const pushMsg = {
+          id: data.id,
+          nick: data.nick,
+          content: data.content,
+        };
+        messages.value.push(pushMsg);
+      }
     }
     // 채팅 바디 생성
     const makeSendBody = (type) => {
@@ -175,34 +215,20 @@ export default {
 
     //엔터로 전송
     const keyupAction = () => {
-      console.log("작성중...");
-      const excludedKeys = [
-        "Shift",
-        "Control",
-        "Alt",
-        "CapsLock",
-        "Escape",
-        "PageUp",
-        "PageDown",
-        "End",
-        "Home",
-        "ArrowLeft",
-        "ArrowUp",
-        "ArrowRight",
-        "ArrowDown",
-        "Insert",
-        "Delete",
-        "Meta",
-        "Tab",
-      ];
       var keyCode = window.event.keyCode;
+      if (excludedKeys.includes(keyCode)) return;
+
       if (keyCode == 13) {
         sendMessage();
+        sendWebSocket(makeSendBody("STOP"));
       } else {
-        if (!excludedKeys.includes(window.event.key)) {
-          sendWebSocket(makeSendBody("TYPING"));
-        }
+        sendWebSocket(makeSendBody("TYPING"));
       }
+
+      clearTimeout(typingTimeout);
+      typingTimeout = setTimeout(() => {
+        sendWebSocket(makeSendBody("STOP"));
+      }, 3000);
     };
 
     // 채팅창 닫기
@@ -283,6 +309,7 @@ export default {
       sendMessage,
       minimize,
       closeProcess,
+      typingUsers,
     };
   },
 };
