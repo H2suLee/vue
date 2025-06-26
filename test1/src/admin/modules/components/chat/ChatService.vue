@@ -76,6 +76,7 @@ import { ref, onMounted, onUnmounted, computed, watch } from "vue";
 import axios from "@/axios.js";
 import ChatModal from "../../../../user/modules/components/chat/ChatModal.vue";
 import Pagination from "@/common/Pagination.vue";
+import { PAGING_CONFIG } from "@/common/PagingConstants.js";
 import { useChatStore } from "@/stores/chatStore";
 import { sendWebSocket, getWebSocket } from "@/common/WebsocketManager";
 
@@ -93,8 +94,8 @@ export default {
     let activeAdminChkSocket = null;
 
     /* 페이징 관련 */
-    const ITEM_PER_PAGE = ref(5);
-    const PAGE_PER_SECTION = ref(5);
+    const ITEM_PER_PAGE = ref(PAGING_CONFIG.ITEM_PER_PAGE);
+    const PAGE_PER_SECTION = ref(PAGING_CONFIG.PAGE_PER_SECTION);
     let curPage = ref(1);
 
     const pageStartIdx = computed(() => {

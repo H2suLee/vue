@@ -13,14 +13,20 @@
       <div class="userChatBox">
         <!-- 메시지 -->
         <div v-for="(msg, index) in messages" :key="index">
-          <p>{{ msg.nick }} : {{ msg.content }}</p>
+          <div :class="msg.id === userId ? 'message me' : 'message other'">
+            <p>{{ msg.nick }} : {{ msg.content }}</p>
+          </div>
         </div>
         <!-- /메시지 -->
       </div>
 
       <!-- 입력 -->
       <div class="inputMsg">
-        <input v-model="message" @keydown="enter" placeholder="메시지 작성.." />
+        <input
+          v-model="message"
+          @keydown="keyupAction"
+          placeholder="메시지 작성.."
+        />
         <button @click="sendMessage" class="sendBtn">
           <img
             src="../../../../assets/images/send.svg"
@@ -92,6 +98,7 @@ export default {
 
     function handleIncomingMessage(data) {
       const pushMsg = {
+        id: data.id,
         nick: data.nick,
         content: data.content,
       };
@@ -167,10 +174,34 @@ export default {
     };
 
     //엔터로 전송
-    const enter = () => {
+    const keyupAction = () => {
+      console.log("작성중...");
+      const excludedKeys = [
+        "Shift",
+        "Control",
+        "Alt",
+        "CapsLock",
+        "Escape",
+        "PageUp",
+        "PageDown",
+        "End",
+        "Home",
+        "ArrowLeft",
+        "ArrowUp",
+        "ArrowRight",
+        "ArrowDown",
+        "Insert",
+        "Delete",
+        "Meta",
+        "Tab",
+      ];
       var keyCode = window.event.keyCode;
       if (keyCode == 13) {
         sendMessage();
+      } else {
+        if (!excludedKeys.includes(window.event.key)) {
+          sendWebSocket(makeSendBody("TYPING"));
+        }
       }
     };
 
@@ -240,7 +271,7 @@ export default {
       role,
       chatroomId,
       visible,
-      enter,
+      keyupAction,
       close,
       modalContent,
       startDrag,
@@ -256,3 +287,21 @@ export default {
   },
 };
 </script>
+<style scoped>
+.message {
+  max-width: 60%;
+  padding: 10px;
+  margin: 5px;
+  border-radius: 8px;
+}
+
+.me {
+  align-self: flex-end;
+  background-color: #dcf8c6;
+}
+
+.other {
+  align-self: flex-start;
+  background-color: #fff;
+}
+</style>
