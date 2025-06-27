@@ -8,6 +8,9 @@
         >&nbsp;&nbsp;님&nbsp;&nbsp;&nbsp;접속중
       </li>
       <li>
+        {{ sessionTime }}
+      </li>
+      <li>
         <a @click="fn_kakaoLogout"
           ><img
             src="../../assets/images/userlogout.svg"
@@ -73,7 +76,7 @@ import { useRouter } from "vue-router";
 import ChatModal from "../modules/components/chat/ChatModal.vue";
 import axios from "axios";
 import emitter from "@/eventBus";
-
+import { SESSION_TIMEOUT } from "@/constant/constants.js";
 export default {
   components: { ChatModal },
   methods: {
@@ -97,8 +100,10 @@ export default {
     const isModalVisible = ref(false);
     const chatroomId = ref(localStorage.getItem("chatroomId"));
     let activeAdminChkSocket = null;
-    let activeAdmin = ref([]);
-    let isActivAdmin = ref(false);
+    const activeAdmin = ref([]);
+    const isActivAdmin = ref(false);
+    const sessionTime = ref("");
+    let sessionTimeWorker = null;
 
     const resetChatroomId = () => {
       chatroomId.value = "";
@@ -147,16 +152,67 @@ export default {
         console.error("activeAdminChkSocket error: ", error);
       };
     };
+
+    const setLocalTime = () => {
+      if (typeof Worker != "undefined") {
+        if (!sessionTimeWorker) {
+          // sessionTimeWorker를 public 바로 밑에 두고 /sessionTimeWorker.js 로 호출하면 아래와 같이 굳이 URL 안 써도 됨
+          sessionTimeWorker = new Worker(
+            new URL("@/worker/sessionTimeWorker.js", import.meta.url),
+            { type: "module" }
+          );
+          sessionTimeWorker.addEventListener("message", function (e) {
+            var data = e.data;
+
+            if (data.type == "tick") {
+              var minutes = Math.floor(data.remainingTime / 60);
+              var seconds = data.remainingTime % 60;
+              // 시간 값을 포맷팅하여 화면의 컨트롤에 표시
+              var formattedValue =
+                fillZero(2, minutes.toString()) +
+                " : " +
+                fillZero(2, seconds.toString());
+              sessionTime.value = formattedValue;
+            } else if (data.type == "timeout") {
+              console.log("세션타임아웃");
+              window.location.reload();
+            }
+          });
+        }
+
+        sessionTimeWorker.postMessage({
+          command: "reset",
+          timeoutSeconds: SESSION_TIMEOUT,
+        });
+
+        console.log("끝");
+      } else {
+        console.log("Your browser doesn't support web workers.");
+      }
+    };
+
+    const fillZero = (width, str) => {
+      return str.length >= width
+        ? str
+        : new Array(width - str.length + 1).join("0") + str;
+    };
+
     onMounted(() => {
       // 웹소켓 연결
       openActiveAdminChkSocket();
       emitter.on("reset-chatroom-id", resetChatroomId);
+      setLocalTime();
     });
 
     // 다른 페이지로 이동시 웹소켓 close
     onUnmounted(() => {
       if (activeAdminChkSocket) {
         activeAdminChkSocket.close();
+      }
+
+      if (sessionTimeWorker) {
+        sessionTimeWorker.terminate();
+        sessionTimeWorker = null;
       }
     });
 
@@ -179,6 +235,7 @@ export default {
       openChatModal,
       openActiveAdminChkSocket,
       resetChatroomId,
+      sessionTime,
     };
   },
 };

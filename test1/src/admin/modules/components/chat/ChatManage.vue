@@ -81,7 +81,7 @@ import axios from "@/axios.js";
 import ChatHistoryModal from "@/user/modules/components/chat/ChatHistoryModal.vue";
 import ChatManageModal from "./ChatManageModal.vue";
 import Pagination from "@/common/Pagination.vue";
-import { PAGING_CONFIG } from "@/common/PagingConstants.js";
+import { PAGING_CONFIG } from "@/constant/constants.js";
 
 export default {
   components: { ChatHistoryModal, ChatManageModal, Pagination },

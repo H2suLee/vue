@@ -83,9 +83,9 @@ import axios from "axios";
 import ChatHistoryModal from "./ChatHistoryModal.vue";
 import ChatModal from "./ChatModal.vue";
 import Pagination from "@/common/Pagination.vue";
-import { PAGING_CONFIG } from "@/common/PagingConstants.js";
+import { PAGING_CONFIG } from "@/constant/constants.js";
 import { useChatStore } from "@/stores/chatStore";
-import { sendWebSocket, getWebSocket } from "@/common/WebsocketManager";
+import { sendWebSocket, getWebSocket } from "@/common/websocketManager.js";
 
 export default {
   components: { ChatHistoryModal, ChatModal, Pagination },

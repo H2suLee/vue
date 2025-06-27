@@ -59,7 +59,7 @@ import {
   sendWebSocket,
   subscribeToMessages,
   unsubscribeFromMessages,
-} from "@/common/WebsocketManager";
+} from "@/common/websocketManager.js";
 
 export default {
   props: {
