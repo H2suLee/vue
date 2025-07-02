@@ -1,7 +1,7 @@
 <template>
   <div class="bg">
     <p>TOYCHAT</p>
-    <a @click="fn_kakaoLogin">
+    <a href="http://localhost:9090/oauth2/authorization/kakao">
       <img
         src="//k.kakaocdn.net/14/dn/btqCn0WEmI3/nijroPfbpCa4at5EIsjyf0/o.jpg"
         width="222"

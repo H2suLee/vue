@@ -17,7 +17,7 @@
 
 <script>
 import { ref, watch, computed } from "vue";
-import axios from "axios";
+import axios from "@/axios.js";
 
 export default {
   props: {
@@ -30,7 +30,7 @@ export default {
       default: "",
     },
   },
-  emits: ["update:modalValue"],
+  emits: ["update:modalValue", "reset-chatroom-id"],
   setup(props, { emit }) {
     const chatroomId = computed(() => props.chatroomId);
     const visible = ref(props.modalValue);
@@ -51,7 +51,7 @@ export default {
         });
         messages.value = response.data;
       } catch (error) {
-        console.error("Error fetching chat list:", error);
+        console.error("Error fetching modal history list:", error);
       }
     };
     // 닫기

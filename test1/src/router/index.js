@@ -44,6 +44,12 @@ const routes = [
     name: "AdminEmpty",
     component: () => import("../admin/modules/components/chat/empty.vue"),
   },
+  {
+    path: "/login/oauth2/callback",
+    name: "LoginCallback",
+    component: () =>
+      import("../user/modules/components/login/LoginCallback.vue"),
+  },
 ];
 
 const router = createRouter({

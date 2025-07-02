@@ -74,24 +74,14 @@
 import { ref, onMounted, onUnmounted, onBeforeUnmount, watch } from "vue";
 import { useRouter } from "vue-router";
 import ChatModal from "../modules/components/chat/ChatModal.vue";
-import axios from "axios";
+import axios from "@/axios";
 import emitter from "@/eventBus";
 import { SESSION_TIMEOUT } from "@/constant/constants.js";
+import { initWebsocket } from "@/common/websocketManager.js";
+import { useChatStore } from "@/stores/chatStore";
+
 export default {
   components: { ChatModal },
-  methods: {
-    fn_kakaoLogout() {
-      window.Kakao.Auth.logout((res) => {
-        if (res) {
-          localStorage.setItem("isAuthenticated", false);
-          localStorage.setItem("id", "");
-          localStorage.setItem("nick", "");
-          //this.$refs.chatModal.closeChatroom(); //<< 왜 오류?
-          this.router.push("/");
-        }
-      });
-    },
-  },
   setup() {
     const router = useRouter();
     const userId = ref(localStorage.getItem("id"));
@@ -104,6 +94,18 @@ export default {
     const isActivAdmin = ref(false);
     const sessionTime = ref("");
     let sessionTimeWorker = null;
+    const chatStore = useChatStore();
+
+    // 로그아웃
+    const fn_kakaoLogout = () => {
+      window.Kakao.Auth.logout((res) => {
+        if (res) {
+          localStorage.clear();
+          chatStore.resetStore();
+          window.location.reload(); // 소켓종료
+        }
+      });
+    };
 
     const resetChatroomId = () => {
       chatroomId.value = "";
@@ -175,7 +177,7 @@ export default {
               sessionTime.value = formattedValue;
             } else if (data.type == "timeout") {
               console.log("세션타임아웃");
-              window.location.reload();
+              fn_kakaoLogout();
             }
           });
         }
@@ -199,6 +201,7 @@ export default {
 
     onMounted(() => {
       // 웹소켓 연결
+      initWebsocket();
       openActiveAdminChkSocket();
       emitter.on("reset-chatroom-id", resetChatroomId);
       setLocalTime();
@@ -236,6 +239,7 @@ export default {
       openActiveAdminChkSocket,
       resetChatroomId,
       sessionTime,
+      fn_kakaoLogout,
     };
   },
 };

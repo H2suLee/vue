@@ -79,7 +79,7 @@
 
 <script>
 import { ref, onMounted, computed } from "vue";
-import axios from "axios";
+import axios from "@/axios.js";
 import ChatHistoryModal from "./ChatHistoryModal.vue";
 import ChatModal from "./ChatModal.vue";
 import Pagination from "@/common/Pagination.vue";
@@ -122,7 +122,7 @@ export default {
         // pinia
         chatStore.setChatList(response.data);
       } catch (error) {
-        console.error("Error fetching chat list:", error);
+        console.error("Error fetching usr chat list:", error);
       }
     };
 

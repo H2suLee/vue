@@ -10,6 +10,7 @@
           <router-view />
         </div>
       </div>
+      <router-view v-if="isOauthCallback" />
     </div>
     <!-- 관리자 -->
     <div v-if="isAdmin">
@@ -26,7 +27,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 // user
@@ -60,6 +61,7 @@ export default {
     const router = useRouter();
     const isAdmin = ref(null);
     const isLogin = ref(null);
+    const isOauthCallback = ref(null);
 
     const loginCheck = async () => {
       // 사용자 로그인 확인
@@ -86,12 +88,14 @@ export default {
     // 라우터 경로 변경을 감지하여 isAdmin 업데이트
     router.afterEach(async (to, from) => {
       isAdmin.value = to.path.startsWith("/admin");
+      isOauthCallback.value = to.path.startsWith("/login/oauth2");
       isLogin.value = await loginCheck();
     });
 
     return {
       isAdmin,
       isLogin,
+      isOauthCallback,
     };
   },
 };

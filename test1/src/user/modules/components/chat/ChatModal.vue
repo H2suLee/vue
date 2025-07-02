@@ -52,7 +52,7 @@
 
 <script>
 import { ref, watch, computed, onMounted, onUnmounted } from "vue";
-import axios from "axios";
+import axios from "@/axios.js";
 import emitter from "@/eventBus";
 import { getCurrentDateTime } from "@/assets/js/common.js";
 import {

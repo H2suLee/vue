@@ -79,7 +79,7 @@
 </template>
 
 <script>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, nextTick } from "vue";
 import axios from "@/axios.js";
 import ChatHistoryModal from "../../../../user/modules/components/chat/ChatHistoryModal.vue";
 import ChatModal from "../../../../user/modules/components/chat/ChatModal.vue";
@@ -123,14 +123,15 @@ export default {
         // pinia
         chatStore.setChatList(response.data);
       } catch (error) {
-        console.error("Error fetching chat list:", error);
+        console.error("Error fetching mylist:", error);
         console.log(error);
       }
     };
 
     // 채팅창 열기
-    const openChatHistoryModal = (id) => {
+    const openChatHistoryModal = async (id) => {
       chatroomId.value = id;
+      await nextTick();
       isChatHistoryModalVisible.value = true;
     };
 

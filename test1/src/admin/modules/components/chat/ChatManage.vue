@@ -114,7 +114,7 @@ export default {
         });
         chatrooms.value = response.data;
       } catch (error) {
-        console.error("Error fetching chat list:", error);
+        console.error("Error fetching mnglist:", error);
       }
     };
 

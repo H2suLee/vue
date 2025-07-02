@@ -29,8 +29,10 @@ import { ref, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { initializeApp } from "firebase/app";
 import { getToken, getMessaging, onMessage } from "firebase/messaging";
-import axios from "axios";
+import axios from "@/axios.js";
 import { SESSION_TIMEOUT } from "@/constant/constants.js";
+import { initWebsocket } from "@/common/websocketManager.js";
+import { useChatStore } from "@/stores/chatStore";
 
 export default {
   setup() {
@@ -38,12 +40,13 @@ export default {
     const nick = ref(localStorage.getItem("adminNick"));
     const sessionTime = ref("");
     let sessionTimeWorker = null;
+    const chatStore = useChatStore();
+
     // 로그아웃
     const handleLogout = () => {
-      localStorage.removeItem("jwt");
-      localStorage.removeItem("adminId");
-      localStorage.removeItem("adminNick");
-      router.push("/admin");
+      localStorage.clear();
+      chatStore.resetStore();
+      window.location.reload(); // 소켓종료
     };
 
     // fcm
@@ -131,7 +134,7 @@ export default {
               sessionTime.value = formattedValue;
             } else if (data.type == "timeout") {
               alert("세션 타임 아웃");
-              window.location.reload();
+              handleLogout();
             }
           });
         }
@@ -154,6 +157,7 @@ export default {
     };
 
     onMounted(() => {
+      initWebsocket();
       retrieveToken();
       setLocalTime();
     });

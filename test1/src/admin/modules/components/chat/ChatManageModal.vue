@@ -40,7 +40,7 @@ export default {
       default: "",
     },
   },
-  emits: ["update:modalValue"],
+  emits: ["update:modalValue", "reset-chatroom-id"],
   setup(props, { emit }) {
     const category = ref("");
     const memo = ref("");

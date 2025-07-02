@@ -3,4 +3,4 @@ export const PAGING_CONFIG = {
   PAGE_PER_SECTION: 10,
 };
 
-export const SESSION_TIMEOUT = 60;
+export const SESSION_TIMEOUT = 3600;

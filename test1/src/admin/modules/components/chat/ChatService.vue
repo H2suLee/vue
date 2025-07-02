@@ -124,7 +124,7 @@ export default {
         // pinia
         chatStore.setChatList(response.data);
       } catch (error) {
-        console.error("Error fetching chat list:", error);
+        console.error("Error fetching livelist:", error);
       }
     };
 
