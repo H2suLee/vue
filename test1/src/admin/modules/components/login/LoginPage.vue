@@ -32,23 +32,25 @@ export default {
   methods: {
     async handleLogin() {
       try {
-        const response = await axios.post("/api/admin/login", {
+        const response = await axios.post("/api/adminLogin", {
           id: this.id,
           pw: this.password,
         });
 
         const token = response.data.jwt;
         const nick = response.data.nick;
-
         localStorage.setItem("jwt", token);
         localStorage.setItem("adminNick", nick);
         localStorage.setItem("adminId", this.id);
-
-        this.$router.go("/admin/chat/mnglist");
+        localStorage.setItem("isAuthenticated", true);
+        console.log("성공");
+        this.$router.go("/admin");
       } catch (err) {
+        console.error(err);
         this.error =
           "Login failed: " + (err.response?.data?.message || "Unknown error");
-        this.$router.go("/admin");
+        //this.$router.go("/admin");
+        localStorage.setItem("isAuthenticated", false);
       }
     },
   },

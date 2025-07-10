@@ -13,14 +13,29 @@
       <div class="userChatBox">
         <!-- 메시지 -->
         <div v-for="(msg, index) in messages" :key="index">
-          <p>{{ msg.nick }} : {{ msg.content }}</p>
+          <div :class="msg.id === userId ? 'message me' : 'message other'">
+            <p>{{ msg.nick }} : {{ msg.content }}</p>
+          </div>
         </div>
         <!-- /메시지 -->
+      </div>
+      <!-- 작성중입니다 -->
+      <div v-if="typingUsers.length > 0">
+        <p>
+          <span v-for="(nick, index) in typingUsers" :key="index">
+            {{ index > 0 ? "," : "" }} {{ nick }}
+          </span>
+          님이 작성중입니다...
+        </p>
       </div>
 
       <!-- 입력 -->
       <div class="inputMsg">
-        <input v-model="message" @keydown="enter" placeholder="메시지 작성.." />
+        <input
+          v-model="message"
+          @keydown="keyupAction"
+          placeholder="메시지 작성.."
+        />
         <button @click="sendMessage" class="sendBtn">
           <img
             src="../../../../assets/images/send.svg"
@@ -36,10 +51,15 @@
 </template>
 
 <script>
-import { ref, watch, onMounted, computed } from "vue";
-import axios from "axios";
+import { ref, watch, computed, onMounted, onUnmounted } from "vue";
+import axios from "@/axios.js";
 import emitter from "@/eventBus";
 import { getCurrentDateTime } from "@/assets/js/common.js";
+import {
+  sendWebSocket,
+  subscribeToMessages,
+  unsubscribeFromMessages,
+} from "@/common/websocketManager.js";
 
 export default {
   props: {
@@ -65,27 +85,65 @@ export default {
     },
   },
   methods: {
-    // 부모창에서 부르는 용.. setup에 정의된건 부모창에서 인식못함
+    // 헤더에서 로그아웃할떄.. setup에 정의된건 부모창에서 인식못함
     closeChatroom() {
-      this.sendWebSocket(this.makeSendBody("END"));
+      closeProcess();
     },
   },
   setup(props, { emit }) {
     const userId = computed(() => props.userId);
     const nick = computed(() => props.nick);
     const role = computed(() => props.role);
-    let chatroomId = computed(() => props.chatroomId);
+    const chatroomId = computed(() => props.chatroomId);
     const visible = ref(props.modelValue);
     const modalContent = ref(null);
-    let isDragging = ref(false);
+    const isDragging = ref(false);
     let startX = 0;
     let startY = 0;
     let initialLeft = 0;
     let initialTop = 0;
     const message = ref("");
-    let messages = ref([]);
-    let websocket = null;
-
+    const messages = ref([]);
+    let typingTimeout = null;
+    const typingUsers = ref([]);
+    const excludedKeys = [
+      "Shift",
+      "Control",
+      "Alt",
+      "CapsLock",
+      "Escape",
+      "PageUp",
+      "PageDown",
+      "End",
+      "Home",
+      "ArrowLeft",
+      "ArrowUp",
+      "ArrowRight",
+      "ArrowDown",
+      "Insert",
+      "Delete",
+      "Meta",
+      "Tab",
+    ];
+    function handleIncomingMessage(data) {
+      const type = data.type;
+      if (type == "TYPING") {
+        if (!typingUsers.value.includes(data.nick) && data.nick != nick.value) {
+          typingUsers.value.push(data.nick);
+        }
+      } else if (type == "STOP") {
+        typingUsers.value = typingUsers.value.filter(
+          (user) => user !== data.nick
+        );
+      } else {
+        const pushMsg = {
+          id: data.id,
+          nick: data.nick,
+          content: data.content,
+        };
+        messages.value.push(pushMsg);
+      }
+    }
     // 채팅 바디 생성
     const makeSendBody = (type) => {
       let content =
@@ -100,6 +158,7 @@ export default {
         nick: nick.value,
         content: content,
         type: type,
+        role: role.value,
       };
       return sendBody;
     };
@@ -154,67 +213,38 @@ export default {
         });
     };
 
-    // 소켓 센드
-    const sendWebSocket = (body) => {
-      if (websocket.readyState === WebSocket.OPEN) {
-        // 웹소켓이 연결된 상태라면 메시지 전송
-        websocket.send(JSON.stringify(body));
-      } else {
-        console.error("WebSocket is not open");
-      }
-    };
-
-    // 소켓 오픈
-    const openWebSocket = () => {
-      websocket = new WebSocket("ws://localhost:9090/ws/chat");
-
-      websocket.onopen = () => {
-        console.log("WebSocket connection opened");
-        isNew();
-      };
-
-      websocket.onmessage = (event) => {
-        let jsondata = JSON.parse(event.data);
-        //console.log(jsondata);
-        let pushMsg = { nick: jsondata.nick, content: jsondata.content };
-        messages.value.push(pushMsg);
-
-        // 부모 컴포넌트로 last message 를 전송
-        emitter.emit("last-message", {
-          chatroomId: chatroomId.value,
-          lastContent: jsondata.content,
-          lastCredt: getCurrentDateTime(),
-        });
-      };
-
-      websocket.onclose = () => {
-        console.log("WebSocket connection closed");
-      };
-
-      websocket.onerror = (error) => {
-        console.error("WebSocket error: ", error);
-      };
-    };
-
     //엔터로 전송
-    const enter = () => {
+    const keyupAction = () => {
       var keyCode = window.event.keyCode;
+      if (excludedKeys.includes(keyCode)) return;
+
       if (keyCode == 13) {
         sendMessage();
+        sendWebSocket(makeSendBody("STOP"));
+      } else {
+        sendWebSocket(makeSendBody("TYPING"));
       }
+
+      clearTimeout(typingTimeout);
+      typingTimeout = setTimeout(() => {
+        sendWebSocket(makeSendBody("STOP"));
+      }, 3000);
     };
 
     // 채팅창 닫기
     const close = () => {
       if (confirm("종료하시겠습니까?")) {
-        sendWebSocket(makeSendBody("END"));
-
-        chatroomId.value = "";
-        messages.value = [];
-        emit("update:modelValue", false);
-        emit("reset-chatroom-id");
-        websocket.close();
+        closeProcess();
       }
+    };
+
+    const closeProcess = () => {
+      sendWebSocket(makeSendBody("END"));
+      chatroomId.value = "";
+      messages.value = [];
+      emit("update:modelValue", false);
+      emitter.emit("reset-chatroom-id");
+      //websocket.close(); //*주석
     };
 
     // 최소화
@@ -248,14 +278,18 @@ export default {
         visible.value = newValue;
         if (newValue) {
           getLiveChat();
-          if (websocket === null || websocket.readyState === WebSocket.CLOSED) {
-            openWebSocket();
-          } else {
-          }
+          isNew();
         }
       }
     );
-    onMounted(() => {});
+
+    onMounted(() => {
+      subscribeToMessages(handleIncomingMessage);
+    });
+
+    onUnmounted(() => {
+      unsubscribeFromMessages(handleIncomingMessage);
+    });
 
     return {
       userId,
@@ -263,20 +297,38 @@ export default {
       role,
       chatroomId,
       visible,
-      enter,
+      keyupAction,
       close,
       modalContent,
       startDrag,
       stopDrag,
       drag,
-      websocket,
       message,
       messages,
       makeSendBody,
-      sendWebSocket,
       sendMessage,
       minimize,
+      closeProcess,
+      typingUsers,
     };
   },
 };
 </script>
+<style scoped>
+.message {
+  max-width: 60%;
+  padding: 10px;
+  margin: 5px;
+  border-radius: 8px;
+}
+
+.me {
+  align-self: flex-end;
+  background-color: #dcf8c6;
+}
+
+.other {
+  align-self: flex-start;
+  background-color: #fff;
+}
+</style>

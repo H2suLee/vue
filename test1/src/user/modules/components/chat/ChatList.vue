@@ -31,15 +31,26 @@
             )"
             :key="chat.chatroomId"
             @click="
-              chat.status === '02'
-                ? openChatModal(chat.chatroomId)
-                : openChatHistoryModal(chat.chatroomId)
+              chat.status === '03'
+                ? openChatHistoryModal(chat.chatroomId)
+                : openChatModal(chat.chatroomId)
             "
           >
             <td>{{ chat.chatroomId }}</td>
             <td>{{ chat.credt }}</td>
-            <td>{{ chat.adm.nick }}</td>
-            <td>{{ chat.lastContent }}</td>
+            <td class="wd10">
+              {{
+                Array.isArray(chat.adm)
+                  ? chat.adm.map((a) => a.nick).join(", ")
+                  : ""
+              }}
+            </td>
+            <td>
+              {{ chat.lastContent }}
+              <p v-if="unreadCounts[chat.chatroomId] != null">
+                ( {{ unreadCounts[chat.chatroomId] }} )
+              </p>
+            </td>
             <td>{{ chat.lastCredt }}</td>
             <td>{{ chat.status }}</td>
           </tr>
@@ -55,7 +66,6 @@
     <ChatHistoryModal
       v-model:modalValue="isChatHistoryModalVisible"
       :chatroomId="chatroomId"
-      @reset-chatroom-id="resetChatroomId"
     />
     <ChatModal
       v-model:modelValue="isModalVisible"
@@ -68,27 +78,30 @@
 </template>
 
 <script>
-import { ref, onMounted, computed, onBeforeUnmount } from "vue";
-import axios from "axios";
+import { ref, onMounted, computed } from "vue";
+import axios from "@/axios.js";
 import ChatHistoryModal from "./ChatHistoryModal.vue";
 import ChatModal from "./ChatModal.vue";
 import Pagination from "@/common/Pagination.vue";
-import emitter from "@/eventBus";
+import { PAGING_CONFIG } from "@/constant/constants.js";
+import { useChatStore } from "@/stores/chatStore";
+import { sendWebSocket, getWebSocket } from "@/common/websocketManager.js";
 
 export default {
   components: { ChatHistoryModal, ChatModal, Pagination },
   setup() {
+    const chatStore = useChatStore();
     const userId = ref(localStorage.getItem("id"));
     const nick = ref(localStorage.getItem("nick"));
     const role = ref("USR");
-    const chatrooms = ref([]);
+    const chatrooms = computed(() => chatStore.chatList);
+    const unreadCounts = computed(() => chatStore.unreadCounts);
     const chatroomId = ref("");
     const isChatHistoryModalVisible = ref(false);
     const isModalVisible = ref(false);
 
-    /* 페이징 관련 */
-    const ITEM_PER_PAGE = ref(20);
-    const PAGE_PER_SECTION = ref(10);
+    const ITEM_PER_PAGE = ref(PAGING_CONFIG.ITEM_PER_PAGE);
+    const PAGE_PER_SECTION = ref(PAGING_CONFIG.PAGE_PER_SECTION);
     let curPage = ref(1);
 
     const pageStartIdx = computed(() => {
@@ -105,19 +118,11 @@ export default {
         const response = await axios.post("/api/chat/chatroomList", {
           id: userId.value,
         });
-        chatrooms.value = response.data;
+        //chatrooms.value = response.data;
+        // pinia
+        chatStore.setChatList(response.data);
       } catch (error) {
-        console.error("Error fetching chat list:", error);
-      }
-    };
-
-    // emitter를 통해 채팅방 별 last-message
-    const updateLastMessage = ({ chatroomId, lastContent, lastCredt }) => {
-      console.log("updateLastMessage>>");
-      const room = chatrooms.value.find((c) => c.chatroomId === chatroomId);
-      if (room) {
-        room.lastContent = lastContent;
-        room.lastCredt = lastCredt;
+        console.error("Error fetching usr chat list:", error);
       }
     };
 
@@ -130,32 +135,50 @@ export default {
     const openChatModal = (id) => {
       chatroomId.value = id;
       isModalVisible.value = true;
+      chatStore.markAsRead(id);
     };
 
-    const resetChatroomId = () => {
-      chatroomId.value = "";
-    };
+    function waitWebSocketOpen(socket) {
+      return new Promise((resolve) => {
+        if (socket.readyState === WebSocket.OPEN) {
+          resolve();
+        } else {
+          socket.addEventListener("open", resolve, { once: true });
+        }
+      });
+    }
 
-    // mounted 훅에서 getMyChatroomList 호출
-    onMounted(() => {
-      getMyChatroomList();
-      emitter.on("last-message", updateLastMessage);
+    onMounted(async () => {
+      // 리스트 최신화
+      await getMyChatroomList();
+      // 채팅방 복구
+      const socket = getWebSocket();
+      await waitWebSocketOpen(socket);
+
+      const rids = chatStore.chatList
+        .filter((r) => r.status === "02")
+        .map((r) => r.chatroomId);
+
+      rids.forEach((rid) => {
+        const sendBody = {
+          chatroomId: rid,
+          type: "REJOIN",
+        };
+        sendWebSocket(sendBody);
+      });
     });
 
-    onBeforeUnmount(() => {
-      emitter.off("last-message", updateLastMessage);
-    });
     return {
       userId,
       nick,
       role,
       chatrooms,
+      unreadCounts,
       chatroomId,
       isChatHistoryModalVisible,
       isModalVisible,
       openChatHistoryModal,
       openChatModal,
-      resetChatroomId,
       ITEM_PER_PAGE,
       PAGE_PER_SECTION,
       pageStartIdx,

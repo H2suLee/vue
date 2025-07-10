@@ -16,13 +16,12 @@ const routes = [
   {
     path: "/chat/paginationTest",
     name: "PaginationTest",
-    component: () =>
-      import("../user/modules/components/common/PaginationSampleList.vue"),
+    component: () => import("../common/PaginationSampleList.vue"),
   },
   {
     path: "/admin",
     name: "AdminHome",
-    component: AdminHome,
+    component: () => import("../admin/views/Home.vue"),
   },
   {
     path: "/admin/chat/mnglist",
@@ -44,6 +43,12 @@ const routes = [
     path: "/admin/chat/empty",
     name: "AdminEmpty",
     component: () => import("../admin/modules/components/chat/empty.vue"),
+  },
+  {
+    path: "/login/oauth2/callback",
+    name: "LoginCallback",
+    component: () =>
+      import("../user/modules/components/login/LoginCallback.vue"),
   },
 ];
 

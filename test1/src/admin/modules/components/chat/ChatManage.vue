@@ -12,16 +12,15 @@
     <div>
       <h1 class="dpn">채팅 관리</h1>
       <table class="tbl">
-        <!-- 카테고리, 상태(진행중/완료), 채팅방 생성일, 마지막 수정,일 문의자, 관리-->
         <thead>
           <tr>
-            <td class="wd6">roomId</td>
-            <td class="wd12">상태(진행중/완료)</td>
-            <td class="wd12">카테고리</td>
+            <td class="wd6">rId</td>
+            <!-- <td class="wd12">상태(진행중/완료)</td> -->
             <td class="wd12">생성일</td>
-            <td class="wd12">수정일</td>
-            <td class="wd12">문의자</td>
-            <td class="wd12">답변자</td>
+            <td class="wd10">답변자</td>
+            <td class="wd10">문의자</td>
+            <td class="wd12">마지막 채팅일</td>
+            <td class="wd12">카테고리</td>
             <td class="wd6">관리</td>
           </tr>
         </thead>
@@ -36,12 +35,18 @@
             @click="openChatHistoryModal(chat.chatroomId)"
           >
             <td>{{ chat.chatroomId }}</td>
-            <td>{{ chat.status }}</td>
-            <td>카테고리</td>
+            <!-- <td>{{ chat.status }}</td> -->
             <td>{{ chat.credt }}</td>
-            <td>{{ chat.upddt }}</td>
-            <td>{{ chat.usr.nick }}</td>
-            <td>{{ chat.adm.nick }}</td>
+            <td class="wd10">
+              {{
+                Array.isArray(chat.adm)
+                  ? chat.adm.map((a) => a.nick).join(", ")
+                  : ""
+              }}
+            </td>
+            <td class="wd10">{{ chat.usr?.nick || "" }}</td>
+            <td>{{ chat.lastCredt }}</td>
+            <td>카테고리</td>
             <td>
               <button @click.stop="openChatManageModal(chat.chatroomId)">
                 관리
@@ -75,7 +80,8 @@ import { ref, onMounted, computed } from "vue";
 import axios from "@/axios.js";
 import ChatHistoryModal from "@/user/modules/components/chat/ChatHistoryModal.vue";
 import ChatManageModal from "./ChatManageModal.vue";
-import Pagination from "@/user/modules/components/common/Pagination.vue";
+import Pagination from "@/common/Pagination.vue";
+import { PAGING_CONFIG } from "@/constant/constants.js";
 
 export default {
   components: { ChatHistoryModal, ChatManageModal, Pagination },
@@ -88,8 +94,8 @@ export default {
     const isChatManageModalVisible = ref(false);
 
     /* 페이징 관련 */
-    const ITEM_PER_PAGE = ref(5);
-    const PAGE_PER_SECTION = ref(5);
+    const ITEM_PER_PAGE = ref(PAGING_CONFIG.ITEM_PER_PAGE);
+    const PAGE_PER_SECTION = ref(PAGING_CONFIG.PAGE_PER_SECTION);
     let curPage = ref(1);
 
     const pageStartIdx = computed(() => {
@@ -108,7 +114,7 @@ export default {
         });
         chatrooms.value = response.data;
       } catch (error) {
-        console.error("Error fetching chat list:", error);
+        console.error("Error fetching mnglist:", error);
       }
     };
 

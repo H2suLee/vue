@@ -12,15 +12,15 @@
     <div>
       <h1 class="dpn">내 채팅</h1>
       <table class="tbl">
-        <!-- 생성일, 답변자, 내용, 마지막 채팅일시 -->
         <thead>
           <tr>
-            <td class="wd6">roomId</td>
+            <td class="wd6">rId</td>
             <td class="wd12">생성일</td>
-            <td class="wd12">답변자</td>
+            <td class="wd10">답변자</td>
+            <td class="wd10">문의자</td>
             <td>채팅</td>
             <td class="wd12">마지막 채팅일</td>
-            <td class="wd12">상태(대기/진행중/완료)</td>
+            <td class="wd10">상태(대기/진행중/완료)</td>
           </tr>
         </thead>
         <tbody>
@@ -38,8 +38,20 @@
           >
             <td>{{ chat.chatroomId }}</td>
             <td>{{ chat.credt }}</td>
-            <td>{{ chat.adm.nick }}</td>
-            <td>{{ chat.lastContent }}</td>
+            <td class="wd10">
+              {{
+                Array.isArray(chat.adm)
+                  ? chat.adm.map((a) => a.nick).join(", ")
+                  : ""
+              }}
+            </td>
+            <td class="wd10">{{ chat.usr?.nick || "" }}</td>
+            <td>
+              {{ chat.lastContent }}
+              <p v-if="unreadCounts[chat.chatroomId] != null">
+                ( {{ unreadCounts[chat.chatroomId] }} )
+              </p>
+            </td>
             <td>{{ chat.lastCredt }}</td>
             <td>{{ chat.status }}</td>
           </tr>
@@ -55,7 +67,6 @@
     <ChatHistoryModal
       v-model:modalValue="isChatHistoryModalVisible"
       :chatroomId="chatroomId"
-      @reset-chatroom-id="resetChatroomId"
     />
     <ChatModal
       v-model:modelValue="isModalVisible"
@@ -68,11 +79,14 @@
 </template>
 
 <script>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, nextTick } from "vue";
 import axios from "@/axios.js";
 import ChatHistoryModal from "../../../../user/modules/components/chat/ChatHistoryModal.vue";
 import ChatModal from "../../../../user/modules/components/chat/ChatModal.vue";
 import Pagination from "@/common/Pagination.vue";
+import { PAGING_CONFIG } from "@/constant/constants.js";
+import { useChatStore } from "@/stores/chatStore";
+import { sendWebSocket, getWebSocket } from "@/common/websocketManager.js";
 
 export default {
   components: { ChatHistoryModal, ChatModal, Pagination },
@@ -80,14 +94,22 @@ export default {
     const userId = ref(localStorage.getItem("adminId"));
     const nick = ref(localStorage.getItem("adminNick"));
     const role = ref("ADM");
-    const chatrooms = ref([]);
+    const chatStore = useChatStore();
+    //const chatrooms = computed(() => chatStore.chatList);
+    const chatrooms = computed(() => {
+      return chatStore.chatList.filter(
+        (chat) =>
+          Array.isArray(chat.adm) &&
+          chat.adm.some((admin) => admin.id === userId.value)
+      );
+    });
+    const unreadCounts = computed(() => chatStore.unreadCounts);
     const chatroomId = ref("");
     const isChatHistoryModalVisible = ref(false);
     const isModalVisible = ref(false);
-
     /* 페이징 관련 */
-    const ITEM_PER_PAGE = ref(5);
-    const PAGE_PER_SECTION = ref(5);
+    const ITEM_PER_PAGE = ref(PAGING_CONFIG.ITEM_PER_PAGE);
+    const PAGE_PER_SECTION = ref(PAGING_CONFIG.PAGE_PER_SECTION);
     let curPage = ref(1);
 
     const pageStartIdx = computed(() => {
@@ -104,31 +126,60 @@ export default {
         const response = await axios.post("/api/admin/chat/mylist", {
           id: userId.value,
         });
-        chatrooms.value = response.data;
+        //chatrooms.value = response.data;
+        // pinia
+        chatStore.setChatList(response.data);
       } catch (error) {
-        console.error("Error fetching chat list:", error);
+        console.error("Error fetching mylist:", error);
+        console.log(error);
       }
     };
 
     // 채팅창 열기
-    const openChatHistoryModal = (id) => {
+    const openChatHistoryModal = async (id) => {
       chatroomId.value = id;
+      await nextTick();
       isChatHistoryModalVisible.value = true;
     };
 
     const openChatModal = (id) => {
-      console.log("id> ", id);
       chatroomId.value = id;
       isModalVisible.value = true;
+      chatStore.markAsRead(id);
     };
 
     const resetChatroomId = () => {
       chatroomId.value = "";
     };
 
-    // mounted 훅에서 getMyChatroomList 호출
-    onMounted(() => {
-      getMyChatroomList();
+    function waitWebSocketOpen(socket) {
+      return new Promise((resolve) => {
+        if (socket.readyState === WebSocket.OPEN) {
+          resolve();
+        } else {
+          socket.addEventListener("open", resolve, { once: true });
+        }
+      });
+    }
+
+    onMounted(async () => {
+      // 리스트 최신화
+      await getMyChatroomList();
+      // 채팅방 복구
+      const socket = getWebSocket();
+      await waitWebSocketOpen(socket);
+
+      const rids = chatStore.chatList
+        .filter((r) => r.status === "02")
+        .map((r) => r.chatroomId);
+
+      rids.forEach((rid) => {
+        const sendBody = {
+          chatroomId: rid,
+          type: "REJOIN",
+        };
+        sendWebSocket(sendBody);
+      });
     });
 
     return {
@@ -136,6 +187,7 @@ export default {
       nick,
       role,
       chatrooms,
+      unreadCounts,
       chatroomId,
       isChatHistoryModalVisible,
       isModalVisible,
