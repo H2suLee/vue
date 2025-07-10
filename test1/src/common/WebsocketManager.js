@@ -18,7 +18,13 @@ export function initWebsocket() {
     if (jsondata.type != "TYPING" && jsondata.type != "STOP") {
       chatStore.handleIncomingMessage(jsondata);
     }
-    subscribers.forEach((callback) => callback(jsondata));
+    if (
+      jsondata.type != "TYPING" &&
+      jsondata.type != "STOP" &&
+      jsondata.type != "LIST"
+    ) {
+      subscribers.forEach((callback) => callback(jsondata));
+    }
   };
   socket.onclose = () => {
     console.warn("전역 WebSocket closed. Reconnecting in 3s...");

@@ -21,7 +21,7 @@ const routes = [
   {
     path: "/admin",
     name: "AdminHome",
-    component: AdminHome,
+    component: () => import("../admin/views/Home.vue"),
   },
   {
     path: "/admin/chat/mnglist",

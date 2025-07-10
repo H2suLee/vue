@@ -95,7 +95,14 @@ export default {
     const nick = ref(localStorage.getItem("adminNick"));
     const role = ref("ADM");
     const chatStore = useChatStore();
-    const chatrooms = computed(() => chatStore.chatList);
+    //const chatrooms = computed(() => chatStore.chatList);
+    const chatrooms = computed(() => {
+      return chatStore.chatList.filter(
+        (chat) =>
+          Array.isArray(chat.adm) &&
+          chat.adm.some((admin) => admin.id === userId.value)
+      );
+    });
     const unreadCounts = computed(() => chatStore.unreadCounts);
     const chatroomId = ref("");
     const isChatHistoryModalVisible = ref(false);

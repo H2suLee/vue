@@ -33,7 +33,6 @@ import { useRoute, useRouter } from "vue-router";
 // user
 import Header from "./user/inc/Header.vue";
 import LeftMenu from "./user/inc/LeftMenu.vue";
-import Body from "./user/inc/Body.vue";
 import Login from "./user/modules/components/login/LoginPage.vue";
 import Home from "./user/views/Home.vue";
 
@@ -49,7 +48,6 @@ export default {
     Header,
     LeftMenu,
     Login,
-    Body,
     AdminHeader,
     AdminLeftMenu,
     AdminLogin,

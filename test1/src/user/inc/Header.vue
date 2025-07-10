@@ -11,7 +11,7 @@
         {{ sessionTime }}
       </li>
       <li>
-        <a @click="fn_kakaoLogout"
+        <a @click="handleLogout"
           ><img
             src="../../assets/images/userlogout.svg"
             alt="로그아웃 아이콘"
@@ -97,14 +97,12 @@ export default {
     const chatStore = useChatStore();
 
     // 로그아웃
-    const fn_kakaoLogout = () => {
-      window.Kakao.Auth.logout((res) => {
-        if (res) {
-          localStorage.clear();
-          chatStore.resetStore();
-          window.location.reload(); // 소켓종료
-        }
-      });
+    const handleLogout = () => {
+      //router.push("/"); 프론트만됨
+      window.location.href = axios.defaults.baseURL;
+      localStorage.clear();
+      chatStore.resetStore();
+      window.location.reload(); // 소켓종료
     };
 
     const resetChatroomId = () => {
@@ -177,7 +175,7 @@ export default {
               sessionTime.value = formattedValue;
             } else if (data.type == "timeout") {
               console.log("세션타임아웃");
-              fn_kakaoLogout();
+              handleLogout();
             }
           });
         }
@@ -200,6 +198,7 @@ export default {
     };
 
     onMounted(() => {
+      console.log("header monuted");
       // 웹소켓 연결
       initWebsocket();
       openActiveAdminChkSocket();
@@ -239,7 +238,7 @@ export default {
       openActiveAdminChkSocket,
       resetChatroomId,
       sessionTime,
-      fn_kakaoLogout,
+      handleLogout,
     };
   },
 };

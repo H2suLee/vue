@@ -44,9 +44,10 @@ export default {
 
     // 로그아웃
     const handleLogout = () => {
+      //router.push("/admin") 이게안됨;
+      window.location.href = axios.defaults.baseURL + "/admin";
       localStorage.clear();
       chatStore.resetStore();
-      window.location.reload(); // 소켓종료
     };
 
     // fcm

@@ -35,7 +35,7 @@ export const useChatStore = defineStore("chat", {
         };
 
         if (message.type === "ENTER" && message.role === "ADM") {
-          pushMsg.adm.push({ nick: message.nick });
+          pushMsg.adm.push({ nick: message.nick, id: message.id });
         }
 
         // 맨 위로 이동(기존항목을 찾아서 제거)
