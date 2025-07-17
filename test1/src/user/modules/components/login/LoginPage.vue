@@ -1,7 +1,7 @@
 <template>
   <div class="bg">
     <div style="display: block">
-      <p>TOYCHAT</p>
+      <p>TOYCHAT_test</p>
       <a :href="getSocialLoginUrl('kakao')">
         <img src="@/assets/images/login/kakao_btn.webp" width="50"
       /></a>
