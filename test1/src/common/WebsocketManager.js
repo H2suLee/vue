@@ -1,4 +1,5 @@
 import { useChatStore } from "@/stores/chatStore";
+import { getWebSocketUri } from "@/assets/js/common.js";
 
 let socket = null;
 const subscribers = new Set();
@@ -6,7 +7,8 @@ const subscribers = new Set();
 export function initWebsocket() {
   if (socket) return;
 
-  socket = new WebSocket("ws://localhost:9090/ws/chat");
+  let wsUrl = getWebSocketUri() + "/ws/chat";
+  socket = new WebSocket(wsUrl);
 
   socket.onopen = () => {
     console.log("전역 Websocket open");
@@ -18,11 +20,7 @@ export function initWebsocket() {
     if (jsondata.type != "TYPING" && jsondata.type != "STOP") {
       chatStore.handleIncomingMessage(jsondata);
     }
-    if (
-      jsondata.type != "TYPING" &&
-      jsondata.type != "STOP" &&
-      jsondata.type != "LIST"
-    ) {
+    if (jsondata.type != "LIST") {
       subscribers.forEach((callback) => callback(jsondata));
     }
   };

@@ -1,3 +1,5 @@
+import axios from "@/axios";
+
 export function getCurrentDateTime() {
   const now = new Date();
 
@@ -9,4 +11,16 @@ export function getCurrentDateTime() {
   const mm = String(now.getMinutes()).padStart(2, "0");
   const ss = String(now.getSeconds()).padStart(2, "0");
   return `${yyyy}-${MM}-${dd} ${hh}:${mm}:${ss}`;
+}
+
+export function getWebSocketUri() {
+  let protocol = window.location.protocol === "https:" ? "wss" : "ws";
+  let host = axios.defaults.baseURL;
+  host = host.replace(/^https?:\/\//, "");
+  let wsUrl = `${protocol}://${host}`;
+  if (wsUrl.includes("localhost")) {
+    wsUrl = wsUrl.replace(":9091", ":9090");
+  }
+
+  return wsUrl;
 }

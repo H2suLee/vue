@@ -79,6 +79,7 @@ import emitter from "@/eventBus";
 import { SESSION_TIMEOUT } from "@/constant/constants.js";
 import { initWebsocket } from "@/common/websocketManager.js";
 import { useChatStore } from "@/stores/chatStore";
+import { getWebSocketUri } from "@/assets/js/common.js";
 
 export default {
   components: { ChatModal },
@@ -93,6 +94,7 @@ export default {
     const activeAdmin = ref([]);
     const isActivAdmin = ref(false);
     const sessionTime = ref("");
+    const sessionExpTime = ref(localStorage.getItem("sessionTime"));
     let sessionTimeWorker = null;
     const chatStore = useChatStore();
 
@@ -102,7 +104,7 @@ export default {
       window.location.href = axios.defaults.baseURL;
       localStorage.clear();
       chatStore.resetStore();
-      window.location.reload(); // 소켓종료
+      //window.location.reload(); // 소켓종료
     };
 
     const resetChatroomId = () => {
@@ -110,8 +112,10 @@ export default {
       console.log("header에서 emit 받음");
     };
     const openChatModal = () => {
+      console.log("chatroomId Header >>", chatroomId.value == "");
+      console.log("chatroomId Header >>", chatroomId.value == null);
       // 채팅방 아이디
-      if (chatroomId.value == "") {
+      if (chatroomId.value == "" || chatroomId.value == null) {
         axios
           .post(`/api/chat/create`, {
             id: userId.value,
@@ -128,9 +132,8 @@ export default {
 
     // 소켓 오픈
     const openActiveAdminChkSocket = () => {
-      activeAdminChkSocket = new WebSocket(
-        "ws://localhost:9090/ws/adminOnList?role=usr"
-      );
+      let wsUrl = getWebSocketUri() + "/ws/adminOnList?role=usr";
+      activeAdminChkSocket = new WebSocket(wsUrl);
 
       activeAdminChkSocket.onopen = () => {
         console.log("activeAdminChkSocket connection opened");
@@ -182,10 +185,8 @@ export default {
 
         sessionTimeWorker.postMessage({
           command: "reset",
-          timeoutSeconds: SESSION_TIMEOUT,
+          timeoutSeconds: sessionExpTime.value,
         });
-
-        console.log("끝");
       } else {
         console.log("Your browser doesn't support web workers.");
       }
