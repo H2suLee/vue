@@ -20,6 +20,7 @@ export function getWebSocketUri() {
   let wsUrl = `${protocol}://${host}`;
   if (wsUrl.includes("localhost")) {
     wsUrl = wsUrl.replace(":9091", ":9090");
+    wsUrl = 'wss://oral-therine-heesu-f4935ad1.koyeb.app' // 디자인을 위해 임시추가
   }
 
   return wsUrl;
