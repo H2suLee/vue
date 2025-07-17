@@ -30,6 +30,7 @@ export default {
       // 개발 서버에서 baseUrl이 9091이면 9090으로 바꿔줌
       if (baseUrl.includes("localhost")) {
         baseUrl = baseUrl.replace(":9091", ":9090");
+        baseUrl = "https://oral-therine-heesu-f4935ad1.koyeb.app"; // 디자인 작업을 위해 임시 추가
       }
       return `${baseUrl}/oauth2/authorization/${provider}`;
     },
