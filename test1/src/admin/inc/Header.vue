@@ -39,6 +39,7 @@ export default {
     const router = useRouter();
     const nick = ref(localStorage.getItem("adminNick"));
     const sessionTime = ref("");
+    const sessionExpTime = ref(localStorage.getItem("sessionTime"));
     let sessionTimeWorker = null;
     const chatStore = useChatStore();
 
@@ -87,7 +88,6 @@ export default {
       "BB-jj2EArj_qbaSA6eCicuMBbt9CnaErLl7hHthN1M3UQif7XpnA6jQpiQ2ShqMmWCBX9zWbN_0F903c8K4NRwo";
 
     const retrieveToken = () => {
-      console.log(appKey);
       getToken(messaging, { vapidKey: appKey })
         .then((currentToken) => {
           console.log("current Token?");
@@ -142,10 +142,8 @@ export default {
 
         sessionTimeWorker.postMessage({
           command: "reset",
-          timeoutSeconds: SESSION_TIMEOUT,
+          timeoutSeconds: sessionExpTime.value,
         });
-
-        console.log("끝");
       } else {
         console.log("Your browser doesn't support web workers.");
       }

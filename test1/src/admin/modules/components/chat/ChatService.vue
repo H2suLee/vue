@@ -79,6 +79,7 @@ import Pagination from "@/common/Pagination.vue";
 import { PAGING_CONFIG } from "@/constant/constants.js";
 import { useChatStore } from "@/stores/chatStore";
 import { sendWebSocket, getWebSocket } from "@/common/websocketManager.js";
+import { getWebSocketUri } from "@/assets/js/common.js";
 
 export default {
   components: { ChatModal, Pagination },
@@ -129,8 +130,9 @@ export default {
     };
 
     const openActiveAdminChkSocket = () => {
-      let url = `ws://localhost:9090/ws/adminOnList?role=adm&nick=${nick.value}`;
-      activeAdminChkSocket = new WebSocket(url);
+      let wsUrl =
+        getWebSocketUri() + `/ws/adminOnList?role=adm&nick=${nick.value}`;
+      activeAdminChkSocket = new WebSocket(wsUrl);
 
       activeAdminChkSocket.onopen = () => {
         console.log("activeAdminChkSocket connection opened");

@@ -20,6 +20,7 @@ export const useChatStore = defineStore("chat", {
             "role": "ADM"
         }
         */
+      console.log("handling message");
       const existing = this.chatList.find(
         (c) => c.chatroomId === message.chatroomId
       );
@@ -63,7 +64,6 @@ export const useChatStore = defineStore("chat", {
     },
 
     markAsRead(chatroomId) {
-      console.log("markAsRead : " + chatroomId);
       this.unreadCounts[chatroomId] = 0;
     },
 

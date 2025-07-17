@@ -27,12 +27,10 @@ export default {
     getSocialLoginUrl(provider) {
       let baseUrl = window.location.origin;
       baseUrl = axios.defaults.baseURL;
-
       // 개발 서버에서 baseUrl이 9091이면 9090으로 바꿔줌
       if (baseUrl.includes("localhost")) {
         baseUrl = baseUrl.replace(":9091", ":9090");
       }
-
       return `${baseUrl}/oauth2/authorization/${provider}`;
     },
     // 안씀
