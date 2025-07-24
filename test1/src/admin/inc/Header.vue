@@ -27,13 +27,11 @@
 <script>
 import { ref, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
-import { initializeApp } from "firebase/app";
-import { getToken, getMessaging, onMessage } from "firebase/messaging";
 import axios from "@/axios.js";
 import { SESSION_TIMEOUT } from "@/constant/constants.js";
 import { initWebsocket } from "@/common/websocketManager.js";
 import { useChatStore } from "@/stores/chatStore";
-
+import { requestFCMPermission } from "@/common/firebaseNotificationManager.js";
 export default {
   setup() {
     const router = useRouter();
@@ -49,68 +47,6 @@ export default {
       window.location.href = axios.defaults.baseURL + "/admin";
       localStorage.clear();
       chatStore.resetStore();
-    };
-
-    // fcm
-    const firebaseConfig = {
-      apiKey: "AIzaSyBUochlrZu3cwXnaW907_ZvHPPNQkCHUaE",
-      authDomain: "toychat-1a2b7.firebaseapp.com",
-      projectId: "toychat-1a2b7",
-      storageBucket: "toychat-1a2b7.appspot.com",
-      messagingSenderId: "286624352269",
-      appId: "1:286624352269:web:c05c71880d215786ea2d44",
-      measurementId: "G-8LWB2ZRCW1",
-    };
-
-    // Initialize Firebase
-    const firebaseApp = initializeApp(firebaseConfig);
-
-    // Cloud Messaging 초기화
-    const messaging = getMessaging(firebaseApp);
-
-    // Foreground 메시지 처리
-    onMessage(messaging, (payload) => {
-      console.log("Message received. ", payload);
-      // 사용자에게 알림 표시 또는 처리할 로직 추가
-    });
-
-    // 브라우저 알림 허용 확인
-    Notification.requestPermission().then((permission) => {
-      if (permission === "granted") {
-        //alert("Notification permission granted.");
-      } else {
-        alert("Unable to get permission to notify.");
-      }
-    });
-
-    // 프로젝트 설정 - 클라우드 메시징 - 웹 푸시 인증서
-    const appKey =
-      "BB-jj2EArj_qbaSA6eCicuMBbt9CnaErLl7hHthN1M3UQif7XpnA6jQpiQ2ShqMmWCBX9zWbN_0F903c8K4NRwo";
-
-    const retrieveToken = () => {
-      getToken(messaging, { vapidKey: appKey })
-        .then((currentToken) => {
-          console.log("current Token?");
-          if (currentToken) {
-            try {
-              let id = localStorage.getItem("adminId");
-              axios.post("/api/fcm/createKey", {
-                fcmKey: currentToken,
-                id: id,
-              });
-            } catch (error) {
-              console.error("Error fetching token:", error);
-            }
-          } else {
-            // Show permission request UI
-            console.log(
-              "No registration token available. Request permission to generate one."
-            );
-          }
-        })
-        .catch((err) => {
-          console.log("An error occurred while retrieving token. ", err);
-        });
     };
 
     const setLocalTime = () => {
@@ -157,8 +93,8 @@ export default {
 
     onMounted(() => {
       initWebsocket();
-      retrieveToken();
       setLocalTime();
+      requestFCMPermission();
     });
 
     onUnmounted(() => {

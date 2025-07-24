@@ -27,12 +27,17 @@ export const useChatStore = defineStore("chat", {
 
       if (existing) {
         // 갱신 가능 항목: lastContent, lastCredt, status, adm
-
+        console.log("chatstore existing", existing.adm.length);
         var pushMsg = {
           ...existing,
           lastContent: message.content,
           lastCredt: message.credt,
-          status: message.type === "END" ? "03" : existing.adm ? "02" : "01",
+          status:
+            message.type === "END"
+              ? "03"
+              : existing.adm.length > 0
+              ? "02"
+              : "01",
         };
 
         if (message.type === "ENTER" && message.role === "ADM") {
