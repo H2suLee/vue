@@ -31,18 +31,24 @@ import axios from "@/axios.js";
 import { SESSION_TIMEOUT } from "@/constant/constants.js";
 import { initWebsocket } from "@/common/websocketManager.js";
 import { useChatStore } from "@/stores/chatStore";
-import { requestFCMPermission } from "@/common/firebaseNotificationManager.js";
+import {
+  requestFCMPermission,
+  deleteFCMToken,
+} from "@/common/firebaseNotificationManager.js";
 export default {
   setup() {
     const router = useRouter();
     const nick = ref(localStorage.getItem("adminNick"));
+    const userId = ref(localStorage.getItem("adminId"));
     const sessionTime = ref("");
     const sessionExpTime = ref(localStorage.getItem("sessionTime"));
     let sessionTimeWorker = null;
     const chatStore = useChatStore();
 
     // 로그아웃
-    const handleLogout = () => {
+    const handleLogout = async () => {
+      // fcmkey 토큰 삭제
+      await deleteFCMToken(userId.value);
       //router.push("/admin") 이게안됨;
       window.location.href = axios.defaults.baseURL + "/admin";
       localStorage.clear();
@@ -94,7 +100,7 @@ export default {
     onMounted(() => {
       initWebsocket();
       setLocalTime();
-      requestFCMPermission();
+      requestFCMPermission(userId.value);
     });
 
     onUnmounted(() => {

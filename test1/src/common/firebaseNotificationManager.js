@@ -1,8 +1,9 @@
-import { getToken, onMessage } from "firebase/messaging";
+import { getToken, onMessage, deleteToken } from "firebase/messaging";
 import { messaging } from "@/common/firebaseConfig";
 import { VAPID_KEY } from "@/constant/constants.js";
+import axios from "@/axios.js";
 
-export function requestFCMPermission() {
+export function requestFCMPermission(userId) {
   // Notification 권한 요청
   console.log("권한을 요청하는 중...");
 
@@ -15,6 +16,11 @@ export function requestFCMPermission() {
         .then((currentToken) => {
           if (currentToken) {
             console.log("FCM Token:", currentToken);
+            let id = userId;
+            axios.post("/api/fcm/createKey", {
+              token: currentToken,
+              userId: id,
+            });
           } else {
             console.log("권한을 허용해주세요");
           }
@@ -35,4 +41,17 @@ export function requestFCMPermission() {
       console.log("권한을 얻을 수 없습니다.");
     }
   });
+}
+
+export async function deleteFCMToken(userId) {
+  const currentToken = await getToken(messaging, { vapidKey: VAPID_KEY });
+  if (currentToken) {
+    await axios.post("/api/fcm/deleteKey", {
+      token: currentToken,
+      userId: userId,
+    });
+    await deleteToken(messaging);
+  } else {
+    console.log("토큰 없음");
+  }
 }
