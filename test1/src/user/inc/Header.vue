@@ -80,6 +80,10 @@ import { SESSION_TIMEOUT } from "@/constant/constants.js";
 import { initWebsocket } from "@/common/websocketManager.js";
 import { useChatStore } from "@/stores/chatStore";
 import { getWebSocketUri } from "@/assets/js/common.js";
+import {
+  requestFCMPermission,
+  deleteFCMToken,
+} from "@/common/firebaseNotificationManager.js";
 
 export default {
   components: { ChatModal },
@@ -99,7 +103,10 @@ export default {
     const chatStore = useChatStore();
 
     // 로그아웃
-    const handleLogout = () => {
+    const handleLogout = async () => {
+      // fcmkey 토큰 삭제
+      await deleteFCMToken(userId.value);
+
       //router.push("/"); 프론트만됨
       window.location.href = axios.defaults.baseURL;
       localStorage.clear();
@@ -205,6 +212,7 @@ export default {
       openActiveAdminChkSocket();
       emitter.on("reset-chatroom-id", resetChatroomId);
       setLocalTime();
+      requestFCMPermission(userId.value);
     });
 
     // 다른 페이지로 이동시 웹소켓 close
