@@ -79,7 +79,7 @@ import emitter from "@/eventBus";
 import { SESSION_TIMEOUT } from "@/constant/constants.js";
 import { initWebsocket } from "@/common/websocketManager.js";
 import { useChatStore } from "@/stores/chatStore";
-import { getWebSocketUri } from "@/assets/js/common.js";
+import { getWebSocketUri, setLocalTime } from "@/assets/js/common.js";
 import {
   requestFCMPermission,
   deleteFCMToken,
@@ -97,9 +97,6 @@ export default {
     let activeAdminChkSocket = null;
     const activeAdmin = ref([]);
     const isActivAdmin = ref(false);
-    const sessionTime = ref("");
-    const sessionExpTime = ref(localStorage.getItem("sessionTime"));
-    let sessionTimeWorker = null;
     const chatStore = useChatStore();
 
     // 로그아웃
@@ -111,16 +108,15 @@ export default {
       window.location.href = axios.defaults.baseURL;
       localStorage.clear();
       chatStore.resetStore();
-      //window.location.reload(); // 소켓종료
     };
+
+    const { sessionTime } = setLocalTime(handleLogout);
 
     const resetChatroomId = () => {
       chatroomId.value = "";
       console.log("header에서 emit 받음");
     };
     const openChatModal = () => {
-      console.log("chatroomId Header >>", chatroomId.value == "");
-      console.log("chatroomId Header >>", chatroomId.value == null);
       // 채팅방 아이디
       if (chatroomId.value == "" || chatroomId.value == null) {
         axios
@@ -163,55 +159,12 @@ export default {
       };
     };
 
-    const setLocalTime = () => {
-      if (typeof Worker != "undefined") {
-        if (!sessionTimeWorker) {
-          // sessionTimeWorker를 public 바로 밑에 두고 /sessionTimeWorker.js 로 호출하면 아래와 같이 굳이 URL 안 써도 됨
-          sessionTimeWorker = new Worker(
-            new URL("@/worker/sessionTimeWorker.js", import.meta.url),
-            { type: "module" }
-          );
-          sessionTimeWorker.addEventListener("message", function (e) {
-            var data = e.data;
-
-            if (data.type == "tick") {
-              var minutes = Math.floor(data.remainingTime / 60);
-              var seconds = data.remainingTime % 60;
-              // 시간 값을 포맷팅하여 화면의 컨트롤에 표시
-              var formattedValue =
-                fillZero(2, minutes.toString()) +
-                " : " +
-                fillZero(2, seconds.toString());
-              sessionTime.value = formattedValue;
-            } else if (data.type == "timeout") {
-              console.log("세션타임아웃");
-              handleLogout();
-            }
-          });
-        }
-
-        sessionTimeWorker.postMessage({
-          command: "reset",
-          timeoutSeconds: sessionExpTime.value,
-        });
-      } else {
-        console.log("Your browser doesn't support web workers.");
-      }
-    };
-
-    const fillZero = (width, str) => {
-      return str.length >= width
-        ? str
-        : new Array(width - str.length + 1).join("0") + str;
-    };
-
     onMounted(() => {
       console.log("header monuted");
       // 웹소켓 연결
       initWebsocket();
       openActiveAdminChkSocket();
       emitter.on("reset-chatroom-id", resetChatroomId);
-      setLocalTime();
       requestFCMPermission(userId.value);
     });
 
@@ -219,11 +172,6 @@ export default {
     onUnmounted(() => {
       if (activeAdminChkSocket) {
         activeAdminChkSocket.close();
-      }
-
-      if (sessionTimeWorker) {
-        sessionTimeWorker.terminate();
-        sessionTimeWorker = null;
       }
     });
 
