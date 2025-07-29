@@ -63,12 +63,12 @@
       />
     </div>
     <ChatHistoryModal
-      v-model:modalValue="isChatHistoryModalVisible"
+      v-model:modelValue="isChatHistoryModalVisible"
       :chatroomId="chatroomId"
       @reset-chatroom-id="resetChatroomId"
     />
     <ChatManageModal
-      v-model:modalValue="isChatManageModalVisible"
+      v-model:modelValue="isChatManageModalVisible"
       :chatroomId="chatroomId"
       @reset-chatroom-id="resetChatroomId"
     />

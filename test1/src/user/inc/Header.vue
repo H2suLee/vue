@@ -3,6 +3,11 @@
     <h1><img src="../../assets/images/logomini.svg" alt="TOYCHATLOGO" /></h1>
     <ul class="dpf">
       <li>
+        <button @click="openMyPushModal">
+          알림 <span v-if="unreadCounts > 0"> {{ unreadCounts }}</span>
+        </button>
+      </li>
+      <li>
         <img src="../../assets/images/userlogin.svg" alt="사람 모양의 아이콘" />
         <span class="em">{{ nick }}</span
         >&nbsp;&nbsp;님&nbsp;&nbsp;&nbsp;접속중
@@ -32,6 +37,7 @@
         </button>
       </li>
     </ul>
+    <MyPushModal v-model:modelValue="isPushModalVisible" />
     <ChatModal
       ref="chatModal"
       v-model:modelValue="isModalVisible"
@@ -71,14 +77,23 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted, onBeforeUnmount, watch } from "vue";
+import {
+  ref,
+  onMounted,
+  onUnmounted,
+  onBeforeUnmount,
+  watch,
+  computed,
+} from "vue";
 import { useRouter } from "vue-router";
 import ChatModal from "../modules/components/chat/ChatModal.vue";
+import MyPushModal from "@/common/MyPushModal.vue";
 import axios from "@/axios";
 import emitter from "@/eventBus";
 import { SESSION_TIMEOUT } from "@/constant/constants.js";
 import { initWebsocket } from "@/common/websocketManager.js";
 import { useChatStore } from "@/stores/chatStore";
+import { usePushStore } from "@/stores/pushStore";
 import { getWebSocketUri, setLocalTime } from "@/assets/js/common.js";
 import {
   requestFCMPermission,
@@ -86,19 +101,21 @@ import {
 } from "@/common/firebaseNotificationManager.js";
 
 export default {
-  components: { ChatModal },
+  components: { ChatModal, MyPushModal },
   setup() {
     const router = useRouter();
     const userId = ref(localStorage.getItem("id"));
     const nick = ref(localStorage.getItem("nick"));
     const role = ref("USR");
     const isModalVisible = ref(false);
+    const isPushModalVisible = ref(false);
     const chatroomId = ref(localStorage.getItem("chatroomId"));
     let activeAdminChkSocket = null;
     const activeAdmin = ref([]);
     const isActivAdmin = ref(false);
     const chatStore = useChatStore();
-
+    const pushStore = usePushStore();
+    const unreadCounts = computed(() => pushStore.unreadCounts);
     // 로그아웃
     const handleLogout = async () => {
       // fcmkey 토큰 삭제
@@ -132,6 +149,21 @@ export default {
         isModalVisible.value = true;
       }
     };
+    const openMyPushModal = () => {
+      isPushModalVisible.value = true;
+    };
+
+    // 푸쉬알림 불러오기
+    const getMyPush = async () => {
+      try {
+        const response = await axios.post("/api/fcm/listFcmPush", {
+          target: userId.value,
+        });
+        pushStore.setPushList(response.data);
+      } catch (error) {
+        console.error("Error fetching modal history list:", error);
+      }
+    };
 
     // 소켓 오픈
     const openActiveAdminChkSocket = () => {
@@ -160,12 +192,12 @@ export default {
     };
 
     onMounted(() => {
-      console.log("header monuted");
       // 웹소켓 연결
       initWebsocket();
       openActiveAdminChkSocket();
       emitter.on("reset-chatroom-id", resetChatroomId);
       requestFCMPermission(userId.value);
+      //getMyPush();
     });
 
     // 다른 페이지로 이동시 웹소켓 close
@@ -188,14 +220,17 @@ export default {
       nick,
       role,
       isModalVisible,
+      isPushModalVisible,
       chatroomId,
       activeAdmin,
       isActivAdmin,
       openChatModal,
+      openMyPushModal,
       openActiveAdminChkSocket,
       resetChatroomId,
       sessionTime,
       handleLogout,
+      unreadCounts,
     };
   },
 };

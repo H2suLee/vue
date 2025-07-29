@@ -36,5 +36,6 @@ messaging.onBackgroundMessage((payload) => {
   const notificationOptions = {
     body: payload.data.body,
   };
+
   self.registration.showNotification(notificationTitle, notificationOptions);
 });

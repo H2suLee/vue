@@ -31,7 +31,7 @@ import axios from "@/axios.js";
 
 export default {
   props: {
-    modalValue: {
+    modelValue: {
       type: Boolean,
       default: false,
     },
@@ -40,13 +40,13 @@ export default {
       default: "",
     },
   },
-  emits: ["update:modalValue", "reset-chatroom-id"],
+  emits: ["update:modelValue", "reset-chatroom-id"],
   setup(props, { emit }) {
     const category = ref("");
     const memo = ref("");
     const errorMessage = ref("");
     const chatroomId = computed(() => props.chatroomId);
-    const visible = ref(props.modalValue);
+    const visible = ref(props.modelValue);
     const modalContent = ref(null);
     let isDragging = ref(false);
     let startX = 0;
@@ -99,7 +99,7 @@ export default {
       chatroomId.value = "";
       category.value = "";
       memo.value = "";
-      emit("update:modalValue", false);
+      emit("update:modelValue", false);
       emit("reset-chatroom-id");
     };
 
@@ -124,7 +124,7 @@ export default {
     };
 
     watch(
-      () => props.modalValue,
+      () => props.modelValue,
       (newValue) => {
         visible.value = newValue;
       }

@@ -65,7 +65,7 @@
       />
     </div>
     <ChatHistoryModal
-      v-model:modalValue="isChatHistoryModalVisible"
+      v-model:modelValue="isChatHistoryModalVisible"
       :chatroomId="chatroomId"
     />
     <ChatModal

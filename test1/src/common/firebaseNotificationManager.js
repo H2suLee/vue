@@ -2,7 +2,7 @@ import { getToken, onMessage, deleteToken } from "firebase/messaging";
 import { messaging } from "@/common/firebaseConfig";
 import { VAPID_KEY } from "@/constant/constants.js";
 import axios from "@/axios.js";
-
+import { usePushStore } from "@/stores/pushStore";
 export function requestFCMPermission(userId) {
   // Notification 권한 요청
   console.log("권한을 요청하는 중...");
@@ -36,6 +36,9 @@ export function requestFCMPermission(userId) {
         const body = payload.data?.body || "";
 
         new Notification(title, { body });
+
+        const pushStore = usePushStore();
+        pushStore.handleIncomingMessage(payload.data);
       });
     } else {
       console.log("권한을 얻을 수 없습니다.");

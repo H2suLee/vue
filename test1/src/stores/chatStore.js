@@ -20,14 +20,12 @@ export const useChatStore = defineStore("chat", {
             "role": "ADM"
         }
         */
-      console.log("handling message");
       const existing = this.chatList.find(
         (c) => c.chatroomId === message.chatroomId
       );
 
       if (existing) {
         // 갱신 가능 항목: lastContent, lastCredt, status, adm
-        console.log("chatstore existing", existing.adm.length);
         var pushMsg = {
           ...existing,
           lastContent: message.content,
@@ -64,8 +62,11 @@ export const useChatStore = defineStore("chat", {
       }
 
       // 안 읽은 메시지 수 증가
-      this.unreadCounts[message.chatroomId] =
-        (this.unreadCounts[message.chatroomId] || 0) + 1;
+      const id = localStorage.getItem("id") || localStorage.getItem("adminId");
+      if (message.id != id) {
+        this.unreadCounts[message.chatroomId] =
+          (this.unreadCounts[message.chatroomId] || 0) + 1;
+      }
     },
 
     markAsRead(chatroomId) {
