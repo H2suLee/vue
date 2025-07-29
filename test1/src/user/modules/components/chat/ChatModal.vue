@@ -314,21 +314,3 @@ export default {
   },
 };
 </script>
-<style scoped>
-.message {
-  max-width: 60%;
-  padding: 10px;
-  margin: 5px;
-  border-radius: 8px;
-}
-
-.me {
-  align-self: flex-end;
-  background-color: #dcf8c6;
-}
-
-.other {
-  align-self: flex-start;
-  background-color: #fff;
-}
-</style>

@@ -111,37 +111,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-content {
-  background: #fff;
-  border-radius: 8px;
-  padding: 20px;
-  position: absolute; /* 변경: absolute로 설정하여 드래그 시 이동 가능 */
-  cursor: move; /* 드래그 가능한 모양으로 변경 */
-  max-width: 500px;
-  width: 100%;
-}
-
-.modal-close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  border: none;
-  background: none;
-  font-size: 20px;
-  cursor: pointer;
-}
-</style>
