@@ -34,15 +34,10 @@
 import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import axios from "@/axios.js";
-import { SESSION_TIMEOUT } from "@/constant/constants.js";
 import { initWebsocket } from "@/common/websocketManager.js";
-import { useChatStore } from "@/stores/chatStore";
 import { usePushStore } from "@/stores/pushStore";
-import { setLocalTime } from "@/assets/js/common.js";
-import {
-  requestFCMPermission,
-  deleteFCMToken,
-} from "@/common/firebaseNotificationManager.js";
+import { setLocalTime, logout } from "@/assets/js/common.js";
+import { requestFCMPermission } from "@/common/firebaseNotificationManager.js";
 import MyPushModal from "@/common/MyPushModal.vue";
 export default {
   components: { MyPushModal },
@@ -50,19 +45,13 @@ export default {
     const router = useRouter();
     const nick = ref(localStorage.getItem("adminNick"));
     const userId = ref(localStorage.getItem("adminId"));
-    const chatStore = useChatStore();
     const pushStore = usePushStore();
     const unreadCounts = computed(() => pushStore.unreadCounts);
     const isPushModalVisible = ref(false);
 
     // 로그아웃
     const handleLogout = async () => {
-      // fcmkey 토큰 삭제
-      await deleteFCMToken(userId.value);
-      //router.push("/admin") 이게안됨;
-      window.location.href = axios.defaults.baseURL + "/admin";
-      localStorage.clear();
-      chatStore.resetStore();
+      logout();
     };
 
     const { sessionTime } = setLocalTime(handleLogout);

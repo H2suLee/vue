@@ -1,5 +1,8 @@
-import axios from "@/axios";
 import { ref, onUnmounted, onMounted } from "vue";
+import { SESSION_TIMEOUT } from "@/constant/constants.js";
+import { deleteFCMToken } from "@/common/firebaseNotificationManager.js";
+//import { useChatStore } from "@/stores/chatStore";
+import { useAuthStore } from "@/stores/authStore.js";
 
 export function getCurrentDateTime() {
   const now = new Date();
@@ -16,7 +19,8 @@ export function getCurrentDateTime() {
 
 export function getWebSocketUri() {
   let protocol = window.location.protocol === "https:" ? "wss" : "ws";
-  let host = axios.defaults.baseURL;
+  let host = window.location.origin;
+  //host = axios.defaults.baseURL;
   host = host.replace(/^https?:\/\//, "");
   let wsUrl = `${protocol}://${host}`;
   if (wsUrl.includes("localhost")) {
@@ -27,10 +31,10 @@ export function getWebSocketUri() {
   return wsUrl;
 }
 
+let sessionTimeWorker = null;
 export function setLocalTime(handleLogout) {
   const sessionTime = ref("");
-  const sessionExpTime = ref(localStorage.getItem("sessionTime"));
-  let sessionTimeWorker = null;
+  const sessionExpTime = ref(SESSION_TIMEOUT);
 
   onMounted(() => {
     if (typeof Worker != "undefined") {
@@ -59,10 +63,7 @@ export function setLocalTime(handleLogout) {
         });
       }
 
-      sessionTimeWorker.postMessage({
-        command: "reset",
-        timeoutSeconds: sessionExpTime.value,
-      });
+      resetSessionTimer(sessionExpTime.value);
     } else {
       console.log("Your browser doesn't support web workers.");
     }
@@ -84,4 +85,23 @@ export function setLocalTime(handleLogout) {
   return {
     sessionTime,
   };
+}
+
+export function resetSessionTimer(timeoutSeconds) {
+  if (sessionTimeWorker) {
+    sessionTimeWorker.postMessage({ command: "reset", timeoutSeconds });
+  }
+}
+
+//const chatStore = useChatStore();
+export async function logout() {
+  const auth = useAuthStore();
+
+  // fcmkey 토큰 삭제
+  await deleteFCMToken();
+
+  localStorage.clear();
+
+  // 상태 갱신
+  auth.setIsLogin(false);
 }

@@ -92,13 +92,9 @@ import axios from "@/axios";
 import emitter from "@/eventBus";
 import { SESSION_TIMEOUT } from "@/constant/constants.js";
 import { initWebsocket } from "@/common/websocketManager.js";
-import { useChatStore } from "@/stores/chatStore";
 import { usePushStore } from "@/stores/pushStore";
-import { getWebSocketUri, setLocalTime } from "@/assets/js/common.js";
-import {
-  requestFCMPermission,
-  deleteFCMToken,
-} from "@/common/firebaseNotificationManager.js";
+import { getWebSocketUri, setLocalTime, logout } from "@/assets/js/common.js";
+import { requestFCMPermission } from "@/common/firebaseNotificationManager.js";
 
 export default {
   components: { ChatModal, MyPushModal },
@@ -113,18 +109,11 @@ export default {
     let activeAdminChkSocket = null;
     const activeAdmin = ref([]);
     const isActivAdmin = ref(false);
-    const chatStore = useChatStore();
     const pushStore = usePushStore();
     const unreadCounts = computed(() => pushStore.unreadCounts);
     // 로그아웃
     const handleLogout = async () => {
-      // fcmkey 토큰 삭제
-      await deleteFCMToken(userId.value);
-
-      //router.push("/"); 프론트만됨
-      window.location.href = axios.defaults.baseURL;
-      localStorage.clear();
-      chatStore.resetStore();
+      logout();
     };
 
     const { sessionTime } = setLocalTime(handleLogout);

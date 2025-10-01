@@ -8,8 +8,7 @@ module.exports = defineConfig({
     port: 9091,
     proxy: {
       "/api": {
-        target: "http://localhost:9090", // 백엔드 서버의 주소로 변경
-        //target: "https://oral-therine-heesu-f4935ad1.koyeb.app", // 백엔드 서버의 주소로 변경
+        target: process.env.VUE_APP_API_TARGET_URL,
         changeOrigin: true,
         //pathRewrite: { "^/api": "" }, // 이거 안지우니 405 method 불일치
       },
