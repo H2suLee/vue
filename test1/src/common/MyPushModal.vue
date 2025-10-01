@@ -17,23 +17,23 @@
           </tr>
         </thead>
         <tbody>
-          <div v-if="pushs.length == 0">알림이 없습니다.</div>
-          <div v-for="(p, index) in pushs" :key="index">
-            <tr>
-              <td>{{ p.title }}</td>
-              <td>{{ p.body }}</td>
-              <td>{{ p.credt }}</td>
-              <td>
-                <input
-                  type="checkbox"
-                  v-model="p.chkYn"
-                  true-value="Y"
-                  false-value="N"
-                  @change="readOne(p, $event)"
-                />
-              </td>
-            </tr>
-          </div>
+          <tr v-if="pushs.length == 0">
+            <td>알림이 없습니다.</td>
+          </tr>
+          <tr v-for="(p, index) in pushs" :key="index">
+            <td>{{ p.title }}</td>
+            <td>{{ p.body }}</td>
+            <td>{{ p.credt }}</td>
+            <td>
+              <input
+                type="checkbox"
+                v-model="p.chkYn"
+                true-value="Y"
+                false-value="N"
+                @change="readOne(p, $event)"
+              />
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>

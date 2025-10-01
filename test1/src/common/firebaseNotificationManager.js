@@ -1,7 +1,7 @@
 import { getToken, onMessage, deleteToken } from "firebase/messaging";
 import { messaging } from "@/common/firebaseConfig";
 import { VAPID_KEY } from "@/constant/constants.js";
-import axios from "@/axios.js";
+import axios from "axios";
 import { usePushStore } from "@/stores/pushStore";
 export function requestFCMPermission(userId) {
   // Notification 권한 요청
@@ -15,7 +15,6 @@ export function requestFCMPermission(userId) {
       getToken(messaging, { vapidKey: VAPID_KEY })
         .then((currentToken) => {
           if (currentToken) {
-            console.log("FCM Token:", currentToken);
             let id = userId;
             axios.post("/api/fcm/createKey", {
               token: currentToken,
@@ -30,7 +29,7 @@ export function requestFCMPermission(userId) {
         });
 
       onMessage(messaging, (payload) => {
-        console.log("📩 Foreground 메시지 수신:", payload);
+        console.log("onForegroundMessage");
 
         const title = payload.data?.title || "알림";
         const body = payload.data?.body || "";
@@ -46,13 +45,17 @@ export function requestFCMPermission(userId) {
   });
 }
 
-export async function deleteFCMToken(userId) {
+export async function deleteFCMToken() {
+  const paramId = localStorage.getItem("id") || localStorage.getItem("adminId");
+  console.log("param Id " + paramId);
   const currentToken = await getToken(messaging, { vapidKey: VAPID_KEY });
-  if (currentToken) {
-    await axios.post("/api/fcm/deleteKey", {
-      token: currentToken,
-      userId: userId,
-    });
+  if (currentToken && paramId) {
+    if (paramId) {
+      await axios.post("/api/fcm/deleteKey", {
+        token: currentToken,
+        userId: paramId,
+      });
+    }
     await deleteToken(messaging);
   } else {
     console.log("토큰 없음");

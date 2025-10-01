@@ -65,7 +65,7 @@
       />
     </div>
     <ChatHistoryModal
-      v-model:modelValue="isChatHistoryModalVisible"
+      v-model:modalValue="isChatHistoryModalVisible"
       :chatroomId="chatroomId"
     />
     <ChatModal
@@ -131,7 +131,6 @@ export default {
         chatStore.setChatList(response.data);
       } catch (error) {
         console.error("Error fetching mylist:", error);
-        console.log(error);
       }
     };
 

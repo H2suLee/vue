@@ -6,7 +6,7 @@
         <img src="@/assets/images/login/kakao_btn.webp" width="50"
       /></a>
       <a :href="getSocialLoginUrl('naver')">
-        <img src="@/assets/images/login/naver_btnD_아이콘원형.png" width="50"
+        <img src="@/assets/images/login/naver_btnD_circle.png" width="50"
       /></a>
       <a :href="getSocialLoginUrl('google')">
         <img
@@ -21,12 +21,12 @@
 </template>
 
 <script>
-import axios from "@/axios";
+import { logout } from "@/assets/js/common.js";
 export default {
   methods: {
     getSocialLoginUrl(provider) {
       let baseUrl = window.location.origin;
-      baseUrl = axios.defaults.baseURL;
+      //baseUrl = axios.defaults.baseURL;
       // 개발 서버에서 baseUrl이 9091이면 9090으로 바꿔줌
       if (baseUrl.includes("localhost")) {
         baseUrl = baseUrl.replace(":9091", ":9090");

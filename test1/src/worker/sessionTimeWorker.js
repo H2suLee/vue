@@ -28,7 +28,7 @@ function startTimer() {
 }
 
 // 타이머를 리셋하는 함수
-function resetTimer(newTimeoutSeconds) {
+export function resetTimer(newTimeoutSeconds) {
   startTime = new Date(); // 시작 시간을 현재로 설정
   timeoutSeconds = newTimeoutSeconds; // 새로운 타임아웃 시간 설정
 }

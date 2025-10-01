@@ -20,6 +20,8 @@
 
 <script>
 import axios from "axios";
+import { deleteFCMToken } from "@/common/firebaseNotificationManager.js";
+import { useAuthStore } from "@/stores/authStore.js";
 
 export default {
   data() {
@@ -32,18 +34,21 @@ export default {
   methods: {
     async handleLogin() {
       try {
+        deleteFCMToken();
+        localStorage.clear();
+
         const response = await axios.post("/api/adminLogin", {
           id: this.id,
           pw: this.password,
         });
-
+        const auth = useAuthStore();
         const token = response.data.jwt;
         const nick = response.data.nick;
-        localStorage.setItem("jwt", token);
-        localStorage.setItem("adminNick", nick);
         localStorage.setItem("adminId", this.id);
-        localStorage.setItem("isAuthenticated", true);
-        console.log("성공");
+        localStorage.setItem("adminNick", nick);
+        localStorage.setItem("jwt", token);
+        localStorage.setItem("role", "ADM");
+        auth.setIsLogin(true);
         this.$router.go("/admin");
       } catch (err) {
         console.error(err);
