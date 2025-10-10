@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import axios from "@/axios.js";
+import { deleteFCMToken } from "@/common/firebaseNotificationManager.js";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
@@ -9,6 +10,14 @@ export const useAuthStore = defineStore("auth", {
   }),
 
   actions: {
+    logout() {
+      // fcmkey 토큰 삭제
+      deleteFCMToken();
+      // 상태 갱신
+      this.setIsLogin(false);
+
+      localStorage.clear();
+    },
     async loginCheck() {
       try {
         const token = localStorage.getItem("jwt");
@@ -22,21 +31,19 @@ export const useAuthStore = defineStore("auth", {
         console.log("is Valid? " + this.isLogin);
       }
     },
-    setIsAdmin(isAdmin) {
+    async setIsAdmin(isAdmin) {
       this.isAdmin = isAdmin;
     },
-    setIsLogin(isLogin) {
+    async setIsLogin(isLogin) {
       this.isLogin = isLogin;
     },
-    setIsOauthCallback(isOauthCallback) {
+    async setIsOauthCallback(isOauthCallback) {
       this.isOauthCallback = isOauthCallback;
     },
   },
-  /*
   persist: {
     key: "auth-store",
     storage: localStorage,
-    paths: ["isLogin"],
-},
-*/
+    paths: ["isLogin", "isAdmin", "isOauthCallback"],
+  },
 });

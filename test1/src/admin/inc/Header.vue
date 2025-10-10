@@ -32,26 +32,27 @@
 
 <script>
 import { ref, onMounted, computed } from "vue";
-import { useRouter } from "vue-router";
 import axios from "@/axios.js";
 import { initWebsocket } from "@/common/websocketManager.js";
 import { usePushStore } from "@/stores/pushStore";
-import { setLocalTime, logout } from "@/assets/js/common.js";
+import { setLocalTime } from "@/assets/js/common.js";
 import { requestFCMPermission } from "@/common/firebaseNotificationManager.js";
 import MyPushModal from "@/common/MyPushModal.vue";
+import { useAuthStore } from "@/stores/authStore.js";
+
 export default {
   components: { MyPushModal },
   setup() {
-    const router = useRouter();
     const nick = ref(localStorage.getItem("adminNick"));
     const userId = ref(localStorage.getItem("adminId"));
     const pushStore = usePushStore();
     const unreadCounts = computed(() => pushStore.unreadCounts);
     const isPushModalVisible = ref(false);
+    const auth = useAuthStore();
 
     // 로그아웃
     const handleLogout = async () => {
-      logout();
+      auth.logout();
     };
 
     const { sessionTime } = setLocalTime(handleLogout);
@@ -71,6 +72,7 @@ export default {
     };
 
     onMounted(() => {
+      console.log("관리자 헤더 마운트");
       initWebsocket();
       requestFCMPermission(userId.value);
       //getMyPush();

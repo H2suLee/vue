@@ -21,7 +21,6 @@
 </template>
 
 <script>
-import { logout } from "@/assets/js/common.js";
 export default {
   methods: {
     getSocialLoginUrl(provider) {

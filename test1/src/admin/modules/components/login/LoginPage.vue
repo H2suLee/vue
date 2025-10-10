@@ -20,7 +20,6 @@
 
 <script>
 import axios from "axios";
-import { deleteFCMToken } from "@/common/firebaseNotificationManager.js";
 import { useAuthStore } from "@/stores/authStore.js";
 
 export default {
@@ -34,7 +33,6 @@ export default {
   methods: {
     async handleLogin() {
       try {
-        deleteFCMToken();
         localStorage.clear();
 
         const response = await axios.post("/api/adminLogin", {
@@ -48,14 +46,14 @@ export default {
         localStorage.setItem("adminNick", nick);
         localStorage.setItem("jwt", token);
         localStorage.setItem("role", "ADM");
-        auth.setIsLogin(true);
         this.$router.go("/admin");
+        auth.setIsLogin(true);
       } catch (err) {
         console.error(err);
         this.error =
           "Login failed: " + (err.response?.data?.message || "Unknown error");
         //this.$router.go("/admin");
-        localStorage.setItem("isAuthenticated", false);
+        this.$router.go("/admin");
       }
     },
   },
