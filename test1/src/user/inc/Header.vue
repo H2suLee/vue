@@ -85,21 +85,18 @@ import {
   watch,
   computed,
 } from "vue";
-import { useRouter } from "vue-router";
 import ChatModal from "../modules/components/chat/ChatModal.vue";
 import MyPushModal from "@/common/MyPushModal.vue";
 import axios from "@/axios";
 import emitter from "@/eventBus";
-import { SESSION_TIMEOUT } from "@/constant/constants.js";
 import { initWebsocket } from "@/common/websocketManager.js";
 import { usePushStore } from "@/stores/pushStore";
-import { getWebSocketUri, setLocalTime, logout } from "@/assets/js/common.js";
+import { getWebSocketUri, setLocalTime } from "@/assets/js/common.js";
 import { requestFCMPermission } from "@/common/firebaseNotificationManager.js";
-
+import { useAuthStore } from "@/stores/authStore.js";
 export default {
   components: { ChatModal, MyPushModal },
   setup() {
-    const router = useRouter();
     const userId = ref(localStorage.getItem("id"));
     const nick = ref(localStorage.getItem("nick"));
     const role = ref("USR");
@@ -111,9 +108,11 @@ export default {
     const isActivAdmin = ref(false);
     const pushStore = usePushStore();
     const unreadCounts = computed(() => pushStore.unreadCounts);
+    const auth = useAuthStore();
+
     // 로그아웃
-    const handleLogout = async () => {
-      logout();
+    const handleLogout = () => {
+      auth.logout();
     };
 
     const { sessionTime } = setLocalTime(handleLogout);
@@ -180,7 +179,8 @@ export default {
       };
     };
 
-    onMounted(() => {
+    onMounted(async () => {
+      console.log("사용자 헤더 마운트");
       // 웹소켓 연결
       initWebsocket();
       openActiveAdminChkSocket();
@@ -204,7 +204,6 @@ export default {
       localStorage.setItem("chatroomId", newValue);
     });
     return {
-      router,
       userId,
       nick,
       role,

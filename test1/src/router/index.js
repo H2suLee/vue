@@ -58,12 +58,21 @@ const router = createRouter({
   routes,
 });
 
-router.afterEach((to, from) => {
+router.beforeEach(async (to, from) => {
   const auth = useAuthStore();
   let isAdmin = to.path.startsWith("/admin");
   auth.setIsAdmin(isAdmin);
   let isOauthCallback = to.path.startsWith("/login/oauth2");
   auth.setIsOauthCallback(isOauthCallback);
+
+  let role = localStorage.getItem("role");
+  if (role == "ADM" && !isAdmin) {
+    auth.logout();
+    return { path: "/" };
+  } else if (role == "USR" && isAdmin) {
+    auth.logout();
+    return { path: "/admin" };
+  }
 });
 
 export default router;

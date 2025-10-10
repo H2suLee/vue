@@ -1,6 +1,5 @@
 <script setup>
 import { useRoute, useRouter } from "vue-router";
-import { deleteFCMToken } from "@/common/firebaseNotificationManager.js";
 import { useAuthStore } from "@/stores/authStore.js";
 
 const router = useRouter();
@@ -13,7 +12,6 @@ const nick = params.get("nick");
 const error = params.get("error");
 
 if (token) {
-  deleteFCMToken();
   localStorage.clear();
 
   //로그인 여부 저장
@@ -21,12 +19,12 @@ if (token) {
   localStorage.setItem("nick", nick);
   localStorage.setItem("jwt", token);
   localStorage.setItem("role", "USR");
-  auth.setIsLogin(true);
   router.push("/");
+  auth.setIsLogin(true);
 } else {
   if (error) {
     alert("로그인 실패 : " + error);
+    router.push("/");
   }
-  router.push("/");
 }
 </script>

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { logout } from "@/assets/js/common";
+import { useAuthStore } from "@/stores/authStore.js";
 
 const instance = axios.create({
   baseURL: "/", // 로컬 프론트에서 돌릴때
@@ -36,12 +36,14 @@ async function refreshJwt() {
       localStorage.setItem("jwt", newAccessToken);
       return newAccessToken;
     } else {
+      const auth = useAuthStore();
       alert("refresh token 만료");
-      logout();
+      auth.logout();
     }
   } catch (error) {
+    const auth = useAuthStore();
     alert("access token 갱신 실패");
-    logout();
+    auth.logout();
     //throw error;
   }
 }

@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import { onMounted, computed } from "vue";
+import { computed } from "vue";
 import { useAuthStore } from "@/stores/authStore.js";
 
 // user
@@ -59,10 +59,6 @@ export default {
     const isAdmin = computed(() => auth.isAdmin);
     const isLogin = computed(() => auth.isLogin);
     const isOauthCallback = computed(() => auth.isOauthCallback);
-
-    onMounted(() => {
-      auth.loginCheck();
-    });
 
     return {
       isAdmin,
