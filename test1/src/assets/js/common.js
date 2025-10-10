@@ -1,8 +1,5 @@
 import { ref, onUnmounted, onMounted } from "vue";
 import { SESSION_TIMEOUT } from "@/constant/constants.js";
-import { deleteFCMToken } from "@/common/firebaseNotificationManager.js";
-//import { useChatStore } from "@/stores/chatStore";
-import { useAuthStore } from "@/stores/authStore.js";
 
 export function getCurrentDateTime() {
   const now = new Date();
@@ -90,17 +87,4 @@ export function resetSessionTimer(timeoutSeconds) {
   if (sessionTimeWorker) {
     sessionTimeWorker.postMessage({ command: "reset", timeoutSeconds });
   }
-}
-
-//const chatStore = useChatStore();
-export async function logout() {
-  const auth = useAuthStore();
-
-  // fcmkey 토큰 삭제
-  await deleteFCMToken();
-
-  localStorage.clear();
-
-  // 상태 갱신
-  auth.setIsLogin(false);
 }

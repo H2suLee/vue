@@ -1,5 +1,7 @@
 import axios from "axios";
 import { useAuthStore } from "@/stores/authStore.js";
+import { SESSION_TIMEOUT } from "@/constant/constants.js";
+import { resetSessionTimer } from "@/assets/js/common";
 
 const instance = axios.create({
   baseURL: "/", // 로컬 프론트에서 돌릴때
@@ -10,7 +12,7 @@ instance.interceptors.request.use(
     try {
       const token = localStorage.getItem("jwt");
       if (token) {
-        //resetSessionTimer(SESSION_TIMEOUT);
+        resetSessionTimer(SESSION_TIMEOUT);
         config.headers.Authorization = `Bearer ${token}`;
       }
     } catch (error) {

@@ -62,7 +62,7 @@
       />
     </div>
     <ChatModal
-      v-model:modalValue="isModalVisible"
+      v-model:modelValue="isModalVisible"
       :userId="userId"
       :nick="nick"
       :role="role"
