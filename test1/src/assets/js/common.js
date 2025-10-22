@@ -22,6 +22,7 @@ export function getWebSocketUri() {
   let wsUrl = `${protocol}://${host}`;
   if (wsUrl.includes("localhost")) {
     wsUrl = wsUrl.replace(":9091", ":9090");
+    wsUrl = "wss://design.zxcv.cloud";
   }
 
   return wsUrl;

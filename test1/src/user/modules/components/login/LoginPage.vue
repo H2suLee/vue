@@ -29,6 +29,7 @@ export default {
       // 개발 서버에서 baseUrl이 9091이면 9090으로 바꿔줌
       if (baseUrl.includes("localhost")) {
         baseUrl = baseUrl.replace(":9091", ":9090");
+        baseUrl = "wss://design.zxcv.cloud";
       }
       return `${baseUrl}/oauth2/authorization/${provider}`;
     },
