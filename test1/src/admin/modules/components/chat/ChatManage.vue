@@ -68,7 +68,7 @@
       @reset-chatroom-id="resetChatroomId"
     />
     <ChatManageModal
-      v-model:modalValue="isChatManageModalVisible"
+      v-model:modelValue="isChatManageModalVisible"
       :chatroomId="chatroomId"
       @reset-chatroom-id="resetChatroomId"
     />

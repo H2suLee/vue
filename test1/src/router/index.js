@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 //import Home from "../user/views/Home.vue";
 import AdminHome from "../admin/views/Home.vue";
+import { useAuthStore } from "@/stores/authStore.js";
 
 const routes = [
   {
@@ -55,6 +56,23 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+});
+
+router.beforeEach(async (to, from) => {
+  const auth = useAuthStore();
+  let isAdmin = to.path.startsWith("/admin");
+  auth.setIsAdmin(isAdmin);
+  let isOauthCallback = to.path.startsWith("/login/oauth2");
+  auth.setIsOauthCallback(isOauthCallback);
+
+  let role = localStorage.getItem("role");
+  if (role == "ADM" && !isAdmin) {
+    auth.logout();
+    return { path: "/" };
+  } else if (role == "USR" && isAdmin) {
+    auth.logout();
+    return { path: "/admin" };
+  }
 });
 
 export default router;

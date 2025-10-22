@@ -131,7 +131,6 @@ export default {
         chatStore.setChatList(response.data);
       } catch (error) {
         console.error("Error fetching mylist:", error);
-        console.log(error);
       }
     };
 

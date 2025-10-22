@@ -20,6 +20,7 @@
 
 <script>
 import axios from "axios";
+import { useAuthStore } from "@/stores/authStore.js";
 
 export default {
   data() {
@@ -32,25 +33,27 @@ export default {
   methods: {
     async handleLogin() {
       try {
+        localStorage.clear();
+
         const response = await axios.post("/api/adminLogin", {
           id: this.id,
           pw: this.password,
         });
-
+        const auth = useAuthStore();
         const token = response.data.jwt;
         const nick = response.data.nick;
-        localStorage.setItem("jwt", token);
-        localStorage.setItem("adminNick", nick);
         localStorage.setItem("adminId", this.id);
-        localStorage.setItem("isAuthenticated", true);
-        console.log("성공");
+        localStorage.setItem("adminNick", nick);
+        localStorage.setItem("jwt", token);
+        localStorage.setItem("role", "ADM");
         this.$router.go("/admin");
+        auth.setIsLogin(true);
       } catch (err) {
         console.error(err);
         this.error =
           "Login failed: " + (err.response?.data?.message || "Unknown error");
         //this.$router.go("/admin");
-        localStorage.setItem("isAuthenticated", false);
+        this.$router.go("/admin");
       }
     },
   },

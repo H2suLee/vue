@@ -27,8 +27,8 @@
 </template>
 
 <script>
-import { ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { computed } from "vue";
+import { useAuthStore } from "@/stores/authStore.js";
 
 // user
 import Header from "./user/inc/Header.vue";
@@ -55,45 +55,10 @@ export default {
     AdminHome,
   },
   setup() {
-    const route = useRoute();
-    const router = useRouter();
-    const isAdmin = ref(null);
-    const isLogin = ref(null);
-    const isOauthCallback = ref(null);
-
-    const loginCheck = async () => {
-      console.log("loginCheck");
-      // 사용자 로그인 확인
-      let isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
-
-      // 관리자 로그인 확인
-      const token = localStorage.getItem("jwt");
-      if (token) {
-        try {
-          const payload = JSON.parse(atob(token.split(".")[1]));
-          const exp = new Date(payload.exp * 1000);
-          const now = new Date();
-          const isExpired = now > exp;
-          isAuthenticated = !isExpired;
-
-          if (isAuthenticated) {
-            localStorage.setItem("sessionTime", payload.time);
-            // token 유효기간도 갱신해야 하지만 너무 귀찮다
-          }
-        } catch (err) {
-          alert(err);
-          isAuthenticated = false;
-        }
-      }
-      return isAuthenticated;
-    };
-
-    // 라우터 경로 변경을 감지하여 isAdmin 업데이트
-    router.afterEach(async (to, from) => {
-      isAdmin.value = to.path.startsWith("/admin");
-      isOauthCallback.value = to.path.startsWith("/login/oauth2");
-      isLogin.value = await loginCheck();
-    });
+    const auth = useAuthStore();
+    const isAdmin = computed(() => auth.isAdmin);
+    const isLogin = computed(() => auth.isLogin);
+    const isOauthCallback = computed(() => auth.isOauthCallback);
 
     return {
       isAdmin,

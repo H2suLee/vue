@@ -3,6 +3,11 @@
     <h1><img src="../../assets/images/logomini.svg" alt="TOYCHATLOGO" /></h1>
     <ul class="dpf">
       <li>
+        <button @click="openMyPushModal">
+          알림 <span v-if="unreadCounts > 0"> {{ unreadCounts }}</span>
+        </button>
+      </li>
+      <li>
         <img src="../../assets/images/userlogin.svg" alt="사람 모양의 아이콘" />
         <span class="em">{{ nick }}</span
         >&nbsp;&nbsp;님&nbsp;&nbsp;&nbsp;접속중
@@ -32,6 +37,7 @@
         </button>
       </li>
     </ul>
+    <MyPushModal v-model:modelValue="isPushModalVisible" />
     <ChatModal
       ref="chatModal"
       v-model:modelValue="isModalVisible"
@@ -71,49 +77,51 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted, onBeforeUnmount, watch } from "vue";
-import { useRouter } from "vue-router";
+import {
+  ref,
+  onMounted,
+  onUnmounted,
+  onBeforeUnmount,
+  watch,
+  computed,
+} from "vue";
 import ChatModal from "../modules/components/chat/ChatModal.vue";
+import MyPushModal from "@/common/MyPushModal.vue";
 import axios from "@/axios";
 import emitter from "@/eventBus";
-import { SESSION_TIMEOUT } from "@/constant/constants.js";
 import { initWebsocket } from "@/common/websocketManager.js";
-import { useChatStore } from "@/stores/chatStore";
-import { getWebSocketUri } from "@/assets/js/common.js";
-
+import { usePushStore } from "@/stores/pushStore";
+import { getWebSocketUri, setLocalTime } from "@/assets/js/common.js";
+import { requestFCMPermission } from "@/common/firebaseNotificationManager.js";
+import { useAuthStore } from "@/stores/authStore.js";
 export default {
-  components: { ChatModal },
+  components: { ChatModal, MyPushModal },
   setup() {
-    const router = useRouter();
     const userId = ref(localStorage.getItem("id"));
     const nick = ref(localStorage.getItem("nick"));
     const role = ref("USR");
     const isModalVisible = ref(false);
+    const isPushModalVisible = ref(false);
     const chatroomId = ref(localStorage.getItem("chatroomId"));
     let activeAdminChkSocket = null;
     const activeAdmin = ref([]);
     const isActivAdmin = ref(false);
-    const sessionTime = ref("");
-    const sessionExpTime = ref(localStorage.getItem("sessionTime"));
-    let sessionTimeWorker = null;
-    const chatStore = useChatStore();
+    const pushStore = usePushStore();
+    const unreadCounts = computed(() => pushStore.unreadCounts);
+    const auth = useAuthStore();
 
     // 로그아웃
     const handleLogout = () => {
-      //router.push("/"); 프론트만됨
-      window.location.href = axios.defaults.baseURL;
-      localStorage.clear();
-      chatStore.resetStore();
-      //window.location.reload(); // 소켓종료
+      auth.logout();
     };
+
+    const { sessionTime } = setLocalTime(handleLogout);
 
     const resetChatroomId = () => {
       chatroomId.value = "";
       console.log("header에서 emit 받음");
     };
     const openChatModal = () => {
-      console.log("chatroomId Header >>", chatroomId.value == "");
-      console.log("chatroomId Header >>", chatroomId.value == null);
       // 채팅방 아이디
       if (chatroomId.value == "" || chatroomId.value == null) {
         axios
@@ -127,6 +135,21 @@ export default {
           });
       } else {
         isModalVisible.value = true;
+      }
+    };
+    const openMyPushModal = () => {
+      isPushModalVisible.value = true;
+    };
+
+    // 푸쉬알림 불러오기
+    const getMyPush = async () => {
+      try {
+        const response = await axios.post("/api/fcm/listFcmPush", {
+          target: userId.value,
+        });
+        pushStore.setPushList(response.data);
+      } catch (error) {
+        console.error("Error fetching modal history list:", error);
       }
     };
 
@@ -156,66 +179,20 @@ export default {
       };
     };
 
-    const setLocalTime = () => {
-      if (typeof Worker != "undefined") {
-        if (!sessionTimeWorker) {
-          // sessionTimeWorker를 public 바로 밑에 두고 /sessionTimeWorker.js 로 호출하면 아래와 같이 굳이 URL 안 써도 됨
-          sessionTimeWorker = new Worker(
-            new URL("@/worker/sessionTimeWorker.js", import.meta.url),
-            { type: "module" }
-          );
-          sessionTimeWorker.addEventListener("message", function (e) {
-            var data = e.data;
-
-            if (data.type == "tick") {
-              var minutes = Math.floor(data.remainingTime / 60);
-              var seconds = data.remainingTime % 60;
-              // 시간 값을 포맷팅하여 화면의 컨트롤에 표시
-              var formattedValue =
-                fillZero(2, minutes.toString()) +
-                " : " +
-                fillZero(2, seconds.toString());
-              sessionTime.value = formattedValue;
-            } else if (data.type == "timeout") {
-              console.log("세션타임아웃");
-              handleLogout();
-            }
-          });
-        }
-
-        sessionTimeWorker.postMessage({
-          command: "reset",
-          timeoutSeconds: sessionExpTime.value,
-        });
-      } else {
-        console.log("Your browser doesn't support web workers.");
-      }
-    };
-
-    const fillZero = (width, str) => {
-      return str.length >= width
-        ? str
-        : new Array(width - str.length + 1).join("0") + str;
-    };
-
-    onMounted(() => {
-      console.log("header monuted");
+    onMounted(async () => {
+      console.log("사용자 헤더 마운트");
       // 웹소켓 연결
       initWebsocket();
       openActiveAdminChkSocket();
       emitter.on("reset-chatroom-id", resetChatroomId);
-      setLocalTime();
+      requestFCMPermission(userId.value);
+      //getMyPush();
     });
 
     // 다른 페이지로 이동시 웹소켓 close
     onUnmounted(() => {
       if (activeAdminChkSocket) {
         activeAdminChkSocket.close();
-      }
-
-      if (sessionTimeWorker) {
-        sessionTimeWorker.terminate();
-        sessionTimeWorker = null;
       }
     });
 
@@ -227,19 +204,21 @@ export default {
       localStorage.setItem("chatroomId", newValue);
     });
     return {
-      router,
       userId,
       nick,
       role,
       isModalVisible,
+      isPushModalVisible,
       chatroomId,
       activeAdmin,
       isActivAdmin,
       openChatModal,
+      openMyPushModal,
       openActiveAdminChkSocket,
       resetChatroomId,
       sessionTime,
       handleLogout,
+      unreadCounts,
     };
   },
 };
